@@ -1,12 +1,12 @@
 import UIKit
 
-class ViewController: UIViewController {
+final class CatalogViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         view.backgroundColor = .red
     }
 
 
 }
-
