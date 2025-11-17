@@ -12,7 +12,7 @@ final class CatalogViewController: UIViewController {
         BookCellViewModel(title: "Lfjf", author: "djjdj", cover: UIImage(named: "cover"), status: .none, isFavorite: true)
     ]
     
-    private let collectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
+    private let gridView = BookGridView()
     
     private let searchController: UISearchController = {
         let searchController = UISearchController()
@@ -30,7 +30,7 @@ final class CatalogViewController: UIViewController {
         
         view.backgroundColor = .systemBackground
         setupNavigationBar()
-        setupCollectionView()
+        setupGridView()
     }
 
 }
@@ -42,50 +42,19 @@ private extension CatalogViewController {
         navigationItem.hidesSearchBarWhenScrolling = true
     }
     
-    func setupCollectionView() {
-        collectionView.backgroundColor = .clear
-        collectionView.delegate = self
-        collectionView.dataSource = self
-        collectionView.translatesAutoresizingMaskIntoConstraints = false
-        collectionView.register(BookCell.self, forCellWithReuseIdentifier: BookCell.identifier)
-        collectionView.setCollectionViewLayout(makeGridLayout(), animated: false)
+    func setupGridView() {
+        let collection = gridView.collectionView
+        collection.delegate = self
+        collection.dataSource = self
         
-        view.addSubview(collectionView)
+        view.addSubview(gridView)
         
         NSLayoutConstraint.activate([
-            collectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-            collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            collectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            gridView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            gridView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            gridView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            gridView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
         ])
-    }
-    
-    func makeGridLayout() -> UICollectionViewCompositionalLayout {
-        UICollectionViewCompositionalLayout { _, _ in
-            let columns = UIConstants.BookGrid.columns
-            let itemH = UIConstants.BookGrid.Spacing.itemHorizontal
-            let itemV = UIConstants.BookGrid.Spacing.itemVertical
-            let fraction = 1.0 / CGFloat(columns)
-
-            let itemSize = NSCollectionLayoutSize(
-                widthDimension: .fractionalWidth(fraction),
-                heightDimension: .estimated(UIConstants.BookGrid.Size.estimatedHeight)
-            )
-            let item = NSCollectionLayoutItem(layoutSize: itemSize)
-            item.contentInsets = .init(top: itemV, leading: itemH, bottom: itemV, trailing: itemH)
-
-            let groupSize = NSCollectionLayoutSize(
-                widthDimension: .fractionalWidth(1.0),
-                heightDimension: .estimated(UIConstants.BookGrid.Size.estimatedHeight)
-            )
-            let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitem: item, count: columns)
-
-            let section = NSCollectionLayoutSection(group: group)
-            section.contentInsets = UIConstants.BookGrid.Spacing.sectionInsets
-            section.interGroupSpacing = UIConstants.BookGrid.Spacing.row
-            
-            return section
-        }
     }
     
 }
