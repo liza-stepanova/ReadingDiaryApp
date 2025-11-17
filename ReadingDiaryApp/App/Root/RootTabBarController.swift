@@ -43,7 +43,6 @@ final class RootTabBarController: UITabBarController {
         appearance.backgroundEffect = UIBlurEffect(style: .systemChromeMaterial)
         
         let stackLayout = appearance.stackedLayoutAppearance
-        
         stackLayout.normal.iconColor = .primaryAccent
         stackLayout.normal.titleTextAttributes = [.foregroundColor: UIColor.secondaryAccent]
         stackLayout.selected.iconColor = .primaryAccent
@@ -53,7 +52,6 @@ final class RootTabBarController: UITabBarController {
         if #available(iOS 15.0, *) {
             tabBar.scrollEdgeAppearance = appearance
         }
-        
     }
     
 }
