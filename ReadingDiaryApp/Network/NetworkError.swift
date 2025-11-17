@@ -17,7 +17,7 @@ enum NetworkError: Error, LocalizedError {
         case .transport(let err):
             return "Ошибка сети: \(err.localizedDescription)"
         case .server(let code):
-            return "Ошибка сервера (\(code))"
+            return "Ошибка сервера (\(code)) "
         case .decoding(let err):
             return "Ошибка декодирования данных: \(err.localizedDescription)"
         }
