@@ -24,3 +24,12 @@ enum NetworkError: Error, LocalizedError {
     }
     
 }
+
+extension NetworkError {
+    var isCancelled: Bool {
+        if case let .transport(err) = self {
+            return (err as NSError).code == NSURLErrorCancelled
+        }
+        return false
+    }
+}
