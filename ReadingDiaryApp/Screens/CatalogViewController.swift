@@ -6,15 +6,30 @@ final class CatalogViewController: UIViewController {
         BookCellViewModel(title: "Lfjf", author: "djjdj", cover: UIImage(named: "cover"), status: .none, isFavorite: true),
         BookCellViewModel(title: "Преступление и наказание ааооаоао  адзааззазазза захаххахахах", author: "djjdslkfwkjfnjkwnfjwbfhbfwdj", cover: UIImage(named: "cover"), status: .reading, isFavorite: false),
         BookCellViewModel(title: "Lfjf", author: "djjdj", cover: UIImage(named: "cover"), status: .none, isFavorite: true),
+        BookCellViewModel(title: "Lfjf", author: "djjdj", cover: UIImage(named: "cover"), status: .none, isFavorite: true),
+        BookCellViewModel(title: "Lfjf", author: "djjdj", cover: UIImage(named: "cover"), status: .none, isFavorite: true),
+        BookCellViewModel(title: "Lfjf", author: "djjdj", cover: UIImage(named: "cover"), status: .none, isFavorite: true),
         BookCellViewModel(title: "Lfjf", author: "djjdj", cover: UIImage(named: "cover"), status: .none, isFavorite: true)
     ]
     
     private let collectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
-
+    
+    private let searchController: UISearchController = {
+        let searchController = UISearchController()
+        searchController.obscuresBackgroundDuringPresentation = false
+        searchController.searchBar.placeholder = UIConstants.Search.placeholder
+        searchController.searchBar.searchBarStyle = .minimal
+        searchController.searchBar.autocapitalizationType = .none
+        searchController.searchBar.autocorrectionType = .no
+        
+        return searchController
+    }()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
         view.backgroundColor = .systemBackground
+        setupNavigationBar()
         setupCollectionView()
     }
 
@@ -22,14 +37,20 @@ final class CatalogViewController: UIViewController {
 
 private extension CatalogViewController {
     
+    func setupNavigationBar() {
+        navigationItem.searchController = searchController
+        navigationItem.hidesSearchBarWhenScrolling = true
+    }
+    
     func setupCollectionView() {
-        view.addSubview(collectionView)
         collectionView.backgroundColor = .clear
         collectionView.delegate = self
         collectionView.dataSource = self
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         collectionView.register(BookCell.self, forCellWithReuseIdentifier: BookCell.identifier)
         collectionView.setCollectionViewLayout(makeGridLayout(), animated: false)
+        
+        view.addSubview(collectionView)
         
         NSLayoutConstraint.activate([
             collectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
@@ -61,7 +82,8 @@ private extension CatalogViewController {
 
             let section = NSCollectionLayoutSection(group: group)
             section.contentInsets = UIConstants.BookGrid.Spacing.sectionInsets
-            section.interGroupSpacing = UIConstants.BookGrid.Spacing.row       
+            section.interGroupSpacing = UIConstants.BookGrid.Spacing.row
+            
             return section
         }
     }
@@ -69,6 +91,7 @@ private extension CatalogViewController {
 }
 
 extension CatalogViewController: UICollectionViewDelegate, UICollectionViewDataSource {
+    
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         data.count
     }

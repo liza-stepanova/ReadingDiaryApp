@@ -3,6 +3,10 @@ import UIKit
 
 enum UIConstants {
     
+    enum Search {
+        static let placeholder = "Название или автор"
+    }
+    
     enum BookGrid {
         static let columns: Int = 2
         
@@ -19,7 +23,6 @@ enum UIConstants {
     }
     
     enum BookCard {
-        
         enum Spacing {
             static let vertical: CGFloat = 4
             static let horizontal: CGFloat = 8
