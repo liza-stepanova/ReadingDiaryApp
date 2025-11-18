@@ -1,7 +1,8 @@
 import UIKit
 
-struct BookCellViewModel: Hashable {
+struct BookCellViewModel {
     
+    let id: String
     let title: String
     let author: String
     let cover: UIImage?

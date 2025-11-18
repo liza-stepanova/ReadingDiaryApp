@@ -3,13 +3,13 @@ import UIKit
 final class CatalogViewController: UIViewController {
     
     private let data: [BookCellViewModel] = [
-        BookCellViewModel(title: "Lfjf", author: "djjdj", cover: UIImage(named: "cover"), status: .none, isFavorite: true),
-        BookCellViewModel(title: "Преступление и наказание ааооаоао  адзааззазазза захаххахахах", author: "djjdslkfwkjfnjkwnfjwbfhbfwdj", cover: UIImage(named: "cover"), status: .reading, isFavorite: false),
-        BookCellViewModel(title: "Lfjf", author: "djjdj", cover: UIImage(named: "cover"), status: .none, isFavorite: true),
-        BookCellViewModel(title: "Lfjf", author: "djjdj", cover: UIImage(named: "cover"), status: .none, isFavorite: true),
-        BookCellViewModel(title: "Lfjf", author: "djjdj", cover: UIImage(named: "cover"), status: .none, isFavorite: true),
-        BookCellViewModel(title: "Lfjf", author: "djjdj", cover: UIImage(named: "cover"), status: .none, isFavorite: true),
-        BookCellViewModel(title: "Lfjf", author: "djjdj", cover: UIImage(named: "cover"), status: .none, isFavorite: true)
+        BookCellViewModel(id: UUID().uuidString, title: "Lfjf", author: "djjdj", cover: UIImage(named: "cover"), status: .none, isFavorite: true),
+        BookCellViewModel(id: UUID().uuidString, title: "Преступление и наказание ааооаоао  адзааззазазза захаххахахах", author: "djjdslkfwkjfnjkwnfjwbfhbfwdj", cover: UIImage(named: "cover"), status: .reading, isFavorite: false),
+        BookCellViewModel(id: UUID().uuidString, title: "Lfjf", author: "djjdj", cover: UIImage(named: "cover"), status: .none, isFavorite: true),
+        BookCellViewModel(id: UUID().uuidString, title: "Lfjf", author: "djjdj", cover: UIImage(named: "cover"), status: .none, isFavorite: true),
+        BookCellViewModel(id: UUID().uuidString, title: "Lfjf", author: "djjdj", cover: UIImage(named: "cover"), status: .none, isFavorite: true),
+        BookCellViewModel(id: UUID().uuidString, title: "Lfjf", author: "djjdj", cover: UIImage(named: "cover"), status: .none, isFavorite: true),
+        BookCellViewModel(id: UUID().uuidString, title: "Lfjf", author: "djjdj", cover: UIImage(named: "cover"), status: .none, isFavorite: true)
     ]
     
     private let gridView = BookGridView()

@@ -53,6 +53,7 @@ extension CatalogPresenter: CatalogInteractorOutput {
         self.books = books
         self.viewModels = books.map {
             BookCellViewModel(
+                id: $0.id,
                 title: $0.title,
                 author: $0.author,
                 cover: nil,
