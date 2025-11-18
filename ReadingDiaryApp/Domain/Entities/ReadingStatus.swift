@@ -1,9 +1,9 @@
-enum ReadingStatus: Int, CaseIterable, Equatable {
+enum ReadingStatus: String, CaseIterable, Equatable {
     
-    case none
-    case reading
-    case done
-
+    case none = "none"
+    case reading = "reading"
+    case done = "done"
+    
     var menuTitle: String {
         switch self {
         case .none:
