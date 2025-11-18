@@ -3,11 +3,16 @@ import Foundation
 final class CatalogInteractor: CatalogInteractorInput {
     
     weak var output: CatalogInteractorOutput?
+    
     private let service: OpenLibraryServiceProtocol
+    private let imageLoader: ImageLoaderProtocol
+    
     private var currentTask: URLSessionDataTask?
+    private var coverTasks: [String: URLSessionDataTask] = [:]
 
-    init(service: OpenLibraryServiceProtocol) {
+    init(service: OpenLibraryServiceProtocol, imageLoader: ImageLoaderProtocol) {
         self.service = service
+        self.imageLoader = imageLoader
     }
 
     func searchBooks(query: String) {
@@ -27,6 +32,41 @@ final class CatalogInteractor: CatalogInteractorInput {
     func cancelSearch() {
         currentTask?.cancel()
         currentTask = nil
+    }
+    
+    func loadCover(for id: String, url: URL) {
+        if let cached = imageLoader.cachedImage(for: url) {
+            output?.didLoadCover(id: id, image: cached)
+            return
+        }
+        if coverTasks[id] != nil { return }
+
+        let task = imageLoader.load(url) { [weak self] result in
+            guard let self else { return }
+            self.coverTasks[id] = nil
+            switch result {
+            case .success(let image):
+                self.output?.didLoadCover(id: id, image: image)
+            case .failure(let error):
+                if error.isCancelled { return }
+                self.output?.didFailLoadCover(id: id, error: error)
+            }
+        }
+        
+        if let task { coverTasks[id] = task }
+    }
+
+    func cancelCoverLoad(for id: String) {
+        if let task = coverTasks[id] {
+            imageLoader.cancel(task: task)
+            coverTasks[id] = nil
+        }
+    }
+
+    deinit {
+        currentTask?.cancel()
+        coverTasks.values.forEach { $0.cancel() }
+        coverTasks.removeAll()
     }
     
 }

@@ -1,7 +1,12 @@
+import UIKit
+
 protocol CatalogInteractorInput: AnyObject {
     
     func searchBooks(query: String)
     func cancelSearch()
+    
+    func loadCover(for id: String, url: URL)
+    func cancelCoverLoad(for id: String)
     
 }
 
@@ -9,6 +14,9 @@ protocol CatalogInteractorOutput: AnyObject {
     
     func didLoadBooks(_ books: [Book])
     func didFailSearch(_ error: NetworkError)
+    
+    func didLoadCover(id: String, image: UIImage)
+    func didFailLoadCover(id: String, error: NetworkError)
     
 }
 
