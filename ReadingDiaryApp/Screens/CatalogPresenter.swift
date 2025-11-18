@@ -38,6 +38,7 @@ final class CatalogPresenter: CatalogPresenterProtocol {
             view?.reloadData()
             return
         }
+        view?.showEmptyState(false)
         view?.setLoading(true)
         cancelAllCoverLoads()
         interactor.searchBooks(query: query)
