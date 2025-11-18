@@ -2,6 +2,10 @@ import UIKit
 
 final class CatalogViewController: UIViewController {
     
+    struct Dependencies {
+        let presenter: CatalogPresenterProtocol
+    }
+    
     private let presenter: CatalogPresenterProtocol
     
     private let gridView = BookGridView()
@@ -35,8 +39,8 @@ final class CatalogViewController: UIViewController {
         return searchController
     }()
     
-    init(presenter: CatalogPresenterProtocol) {
-        self.presenter = presenter
+    init(dependencies: Dependencies) {
+        self.presenter = dependencies.presenter
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -50,6 +54,8 @@ final class CatalogViewController: UIViewController {
         view.backgroundColor = .systemBackground
         setupNavigationBar()
         setupGridView()
+        setupSpinner()
+        presenter.viewDidLoad()
     }
 
 }
@@ -124,8 +130,28 @@ extension CatalogViewController: CatalogViewProtocol {
     }
     
     func reloadItems(at indexes: [Int]) {
+        let collectionView = self.gridView.collectionView
         let paths = indexes.map { IndexPath(item: $0, section: 0) }
-        gridView.collectionView.reloadItems(at: paths)
+        DispatchQueue.main.async {
+            let safe = paths.filter { $0.item < collectionView.numberOfItems(inSection: 0) }
+            guard !safe.isEmpty else { return }
+            collectionView.performBatchUpdates(
+                { collectionView.reloadItems(at: safe)},
+                completion: nil
+            )
+        }
+    }
+    
+    func updateCover(at index: Int, image: UIImage?) {
+        let indexPath = IndexPath(item: index, section: 0)
+        if let cell = gridView.collectionView.cellForItem(at: indexPath) as? BookCell {
+            cell.setCoverImage(image ?? UIConstants.Images.coverPlaceholder)
+        } else {
+            DispatchQueue.main.async { [weak self] in
+                guard let self else { return }
+                self.reloadItems(at: [index])
+            }
+        }
     }
     
     func showEmptyState(_ flag: Bool) {

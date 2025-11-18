@@ -2,6 +2,10 @@ import UIKit
 
 final class CatalogPresenter: CatalogPresenterProtocol {
     
+    struct Dependencies {
+        let interactor: CatalogInteractorInput
+    }
+    
     private weak var view: CatalogViewProtocol?
     private let interactor: CatalogInteractorInput
 
@@ -10,9 +14,12 @@ final class CatalogPresenter: CatalogPresenterProtocol {
     
     var numberOfItems: Int { viewModels.count }
 
-    init(view: CatalogViewProtocol, interactor: CatalogInteractorInput) {
+    init(dependencies: Dependencies) {
+        self.interactor = dependencies.interactor
+    }
+    
+    func setViewController(view: CatalogViewProtocol) {
         self.view = view
-        self.interactor = interactor
     }
 
     func viewDidLoad() {
@@ -48,7 +55,13 @@ final class CatalogPresenter: CatalogPresenterProtocol {
     func willDisplayItem(at index: Int) {
         guard index >= 0, index < books.count else { return }
         if viewModels[index].cover != nil { return }
-        guard let url = books[index].coverURL() else { return }
+        
+        guard let url = books[index].coverURL() else {
+            viewModels[index].cover = UIConstants.Images.coverPlaceholder
+            view?.reloadItems(at: [index])
+            return
+        }
+        
         interactor.loadCover(for: viewModels[index].id, url: url)
     }
     
@@ -86,7 +99,7 @@ extension CatalogPresenter: CatalogInteractorOutput {
     func didLoadCover(id: String, image: UIImage) {
         guard let index = indexOfItem(with: id) else { return }
         viewModels[index].cover = image
-        view?.reloadItems(at: [index])
+        view?.updateCover(at: index, image: image)
     }
     
     func didFailLoadCover(id: String, error: NetworkError) {
@@ -97,7 +110,7 @@ extension CatalogPresenter: CatalogInteractorOutput {
         
         if viewModels[index].cover == nil {
             viewModels[index].cover = UIConstants.Images.coverPlaceholder
-            view?.reloadItems(at: [index])
+            view?.updateCover(at: index, image: UIConstants.Images.coverPlaceholder)
         }
     }
     

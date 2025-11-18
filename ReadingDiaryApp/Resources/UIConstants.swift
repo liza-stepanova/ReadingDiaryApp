@@ -4,7 +4,7 @@ import UIKit
 enum UIConstants {
     
     enum Images {
-        static let coverPlaceholder: UIImage? = UIImage(systemName: "book.closed")
+        static let coverPlaceholder: UIImage? = UIImage(named: "cover_placeholder")
     }
     
     enum Search {

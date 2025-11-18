@@ -1,17 +1,22 @@
 import Foundation
 
 struct NetworkClient: NetworkClientProtocol {
+    
+    struct Dependencies {
+        let session: URLSession
+        let callbackQueue: DispatchQueue = .main
+    }
 
     private let session: URLSession
     private let decoder: JSONDecoder
     private let callbackQueue: DispatchQueue
 
-    init(session: URLSession = .shared, callbackQueue: DispatchQueue = .main) {
-        self.session = session
+    init(dependencies: Dependencies) {
+        self.session = dependencies.session
         let decoder = JSONDecoder()
         decoder.keyDecodingStrategy = .useDefaultKeys
         self.decoder = decoder
-        self.callbackQueue = callbackQueue
+        self.callbackQueue = dependencies.callbackQueue
     }
 
     @discardableResult

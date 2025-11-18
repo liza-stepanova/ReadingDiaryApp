@@ -22,6 +22,7 @@ protocol CatalogInteractorOutput: AnyObject {
 
 protocol CatalogPresenterProtocol: AnyObject {
     
+    func setViewController(view: CatalogViewProtocol)
     func viewDidLoad()
     func searchSubmitted(_ text: String)
     func cancelSearch()
@@ -38,6 +39,7 @@ protocol CatalogViewProtocol: AnyObject {
     func setLoading(_ flag: Bool)
     func reloadData()
     func reloadItems(at indexes: [Int])
+    func updateCover(at index: Int, image: UIImage?)
     func showEmptyState(_ flag: Bool)
     func showError(message: String)
     
