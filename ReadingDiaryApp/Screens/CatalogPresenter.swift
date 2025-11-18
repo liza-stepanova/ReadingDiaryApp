@@ -2,6 +2,10 @@ import UIKit
 
 final class CatalogPresenter: CatalogPresenterProtocol {
     
+    struct Dependencies {
+        let interactor: CatalogInteractorInput
+    }
+    
     private weak var view: CatalogViewProtocol?
     private let interactor: CatalogInteractorInput
 
@@ -10,9 +14,12 @@ final class CatalogPresenter: CatalogPresenterProtocol {
     
     var numberOfItems: Int { viewModels.count }
 
-    init(view: CatalogViewProtocol, interactor: CatalogInteractorInput) {
+    init(dependencies: Dependencies) {
+        self.interactor = dependencies.interactor
+    }
+    
+    func setViewController(view: CatalogViewProtocol) {
         self.view = view
-        self.interactor = interactor
     }
 
     func viewDidLoad() {

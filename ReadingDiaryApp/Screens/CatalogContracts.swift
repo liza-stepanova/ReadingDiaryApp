@@ -22,6 +22,7 @@ protocol CatalogInteractorOutput: AnyObject {
 
 protocol CatalogPresenterProtocol: AnyObject {
     
+    func setViewController(view: CatalogViewProtocol)
     func viewDidLoad()
     func searchSubmitted(_ text: String)
     func cancelSearch()

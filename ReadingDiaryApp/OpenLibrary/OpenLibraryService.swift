@@ -11,11 +11,15 @@ protocol OpenLibraryServiceProtocol {
 }
 
 final class OpenLibraryService: OpenLibraryServiceProtocol {
+    
+    struct Dependencies {
+        let client: NetworkClientProtocol
+    }
 
     private let client: NetworkClientProtocol
 
-    init(client: NetworkClientProtocol) {
-        self.client = client
+    init(dependencies: Dependencies) {
+        self.client = dependencies.client
     }
 
     @discardableResult

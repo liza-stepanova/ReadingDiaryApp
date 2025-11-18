@@ -12,6 +12,11 @@ protocol ImageLoaderProtocol: AnyObject {
 
 final class ImageLoader: ImageLoaderProtocol {
     
+    struct Dependencies {
+        let client: NetworkClientProtocol
+        let limits: Limits = .default
+    }
+    
     struct Limits {
         let count: Int
         let totalCost: Int
@@ -21,10 +26,10 @@ final class ImageLoader: ImageLoaderProtocol {
     private let client: NetworkClientProtocol
     private let cache = NSCache<NSURL, UIImage>()
 
-    init(client: NetworkClientProtocol, limits: Limits = .default) {
-        self.client = client
-        cache.countLimit = limits.count
-        cache.totalCostLimit = limits.totalCost
+    init(dependencies: Dependencies) {
+        self.client = dependencies.client
+        cache.countLimit = dependencies.limits.count
+        cache.totalCostLimit = dependencies.limits.totalCost
     }
 
     func cachedImage(for url: URL) -> UIImage? {

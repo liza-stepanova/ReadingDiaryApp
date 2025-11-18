@@ -2,6 +2,11 @@ import Foundation
 
 final class CatalogInteractor: CatalogInteractorInput {
     
+    struct Dependencies {
+        let service: OpenLibraryServiceProtocol
+        let imageLoader: ImageLoaderProtocol
+    }
+    
     weak var output: CatalogInteractorOutput?
     
     private let service: OpenLibraryServiceProtocol
@@ -10,9 +15,9 @@ final class CatalogInteractor: CatalogInteractorInput {
     private var currentTask: URLSessionDataTask?
     private var coverTasks: [String: URLSessionDataTask] = [:]
 
-    init(service: OpenLibraryServiceProtocol, imageLoader: ImageLoaderProtocol) {
-        self.service = service
-        self.imageLoader = imageLoader
+    init(dependencies: Dependencies) {
+        self.service = dependencies.service
+        self.imageLoader = dependencies.imageLoader
     }
 
     func searchBooks(query: String) {

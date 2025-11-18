@@ -2,6 +2,10 @@ import UIKit
 
 final class CatalogViewController: UIViewController {
     
+    struct Dependencies {
+        let presenter: CatalogPresenterProtocol
+    }
+    
     private let presenter: CatalogPresenterProtocol
     
     private let gridView = BookGridView()
@@ -35,8 +39,8 @@ final class CatalogViewController: UIViewController {
         return searchController
     }()
     
-    init(presenter: CatalogPresenterProtocol) {
-        self.presenter = presenter
+    init(dependencies: Dependencies) {
+        self.presenter = dependencies.presenter
         super.init(nibName: nil, bundle: nil)
     }
     
