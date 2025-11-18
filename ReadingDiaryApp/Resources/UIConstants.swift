@@ -3,6 +3,10 @@ import UIKit
 
 enum UIConstants {
     
+    enum Images {
+        static let coverPlaceholder: UIImage? = UIImage(systemName: "book.closed")
+    }
+    
     enum Search {
         static let placeholder = "Название или автор"
     }

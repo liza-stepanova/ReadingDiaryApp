@@ -10,8 +10,7 @@ final class CatalogPresenter: CatalogPresenterProtocol {
     
     var numberOfItems: Int { viewModels.count }
 
-    init(view: CatalogViewProtocol,
-         interactor: CatalogInteractorInput) {
+    init(view: CatalogViewProtocol, interactor: CatalogInteractorInput) {
         self.view = view
         self.interactor = interactor
     }
@@ -24,7 +23,7 @@ final class CatalogPresenter: CatalogPresenterProtocol {
     func searchSubmitted(_ text: String) {
         let query = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !query.isEmpty else {
-            interactor.cancelSearch()
+            cancelAllCoverLoads()
             books = []
             viewModels = []
             view?.setLoading(false)
@@ -33,6 +32,7 @@ final class CatalogPresenter: CatalogPresenterProtocol {
             return
         }
         view?.setLoading(true)
+        cancelAllCoverLoads()
         interactor.searchBooks(query: query)
     }
 
@@ -43,6 +43,18 @@ final class CatalogPresenter: CatalogPresenterProtocol {
     
     func itemViewModel(at index: Int) -> BookCellViewModel {
         viewModels[index]
+    }
+    
+    func willDisplayItem(at index: Int) {
+        guard index >= 0, index < books.count else { return }
+        if viewModels[index].cover != nil { return }
+        guard let url = books[index].coverURL() else { return }
+        interactor.loadCover(for: viewModels[index].id, url: url)
+    }
+    
+    func didEndDisplayingItem(at index: Int) {
+        guard index >= 0, index < viewModels.count else { return }
+        interactor.cancelCoverLoad(for: viewModels[index].id)
     }
     
 }
@@ -69,6 +81,38 @@ extension CatalogPresenter: CatalogInteractorOutput {
     func didFailSearch(_ error: NetworkError) {
         view?.setLoading(false)
         view?.showError(message: error.localizedDescription)
+    }
+    
+    func didLoadCover(id: String, image: UIImage) {
+        guard let index = indexOfItem(with: id) else { return }
+        viewModels[index].cover = image
+        view?.reloadItems(at: [index])
+    }
+    
+    func didFailLoadCover(id: String, error: NetworkError) {
+        if case let .transport(error) = error,
+            (error as NSError).code == NSURLErrorCancelled { return }
+        
+        guard let index = viewModels.firstIndex(where: { $0.id == id }) else { return }
+        
+        if viewModels[index].cover == nil {
+            viewModels[index].cover = UIConstants.Images.coverPlaceholder
+            view?.reloadItems(at: [index])
+        }
+    }
+    
+}
+
+private extension CatalogPresenter {
+    
+    func cancelAllCoverLoads() {
+        for viewModel in viewModels {
+            interactor.cancelCoverLoad(for: viewModel.id)
+        }
+    }
+
+    func indexOfItem(with id: String) -> Int? {
+        viewModels.firstIndex { $0.id == id }
     }
     
 }

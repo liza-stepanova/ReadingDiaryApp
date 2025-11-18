@@ -29,12 +29,15 @@ protocol CatalogPresenterProtocol: AnyObject {
     var numberOfItems: Int { get }
     func itemViewModel(at index: Int) -> BookCellViewModel
     
+    func willDisplayItem(at index: Int)
+    func didEndDisplayingItem(at index: Int)
 }
 
 protocol CatalogViewProtocol: AnyObject {
     
     func setLoading(_ flag: Bool)
     func reloadData()
+    func reloadItems(at indexes: [Int])
     func showEmptyState(_ flag: Bool)
     func showError(message: String)
     

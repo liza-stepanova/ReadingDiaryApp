@@ -5,7 +5,7 @@ struct BookCellViewModel {
     let id: String
     let title: String
     let author: String
-    let cover: UIImage?
+    var cover: UIImage?
     let status: ReadingStatus
     let isFavorite: Bool
     
