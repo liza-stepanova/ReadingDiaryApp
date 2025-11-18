@@ -11,3 +11,23 @@ protocol CatalogInteractorOutput: AnyObject {
     func didFailSearch(_ error: NetworkError)
     
 }
+
+protocol CatalogPresenterProtocol: AnyObject {
+    
+    func viewDidLoad()
+    func searchSubmitted(_ text: String)
+    func cancelSearch()
+    
+    var numberOfItems: Int { get }
+    func itemViewModel(at index: Int) -> BookCellViewModel
+    
+}
+
+protocol CatalogViewProtocol: AnyObject {
+    
+    func setLoading(_ flag: Bool)
+    func reloadData()
+    func showEmptyState(_ flag: Bool)
+    func showError(message: String)
+    
+}
