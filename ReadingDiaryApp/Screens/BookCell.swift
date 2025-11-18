@@ -15,7 +15,16 @@ final class BookCell: UICollectionViewCell {
         imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.contentMode = .scaleAspectFill
         imageView.clipsToBounds = true
+        
         return imageView
+    }()
+    
+    private let coverSpinner: UIActivityIndicatorView = {
+        let indicator = UIActivityIndicatorView(style: .medium)
+        indicator.hidesWhenStopped = true
+        indicator.translatesAutoresizingMaskIntoConstraints = false
+        
+        return indicator
     }()
     
     private let bookTitleLabel: UILabel = {
@@ -24,6 +33,7 @@ final class BookCell: UICollectionViewCell {
         label.font = UIConstants.Font.h3
         label.textColor = .defaultText
         label.numberOfLines = 0
+        
         return label
     }()
     
@@ -33,6 +43,7 @@ final class BookCell: UICollectionViewCell {
         label.font = UIConstants.Font.text2
         label.textColor = .secondaryAccent
         label.numberOfLines = 0
+        
         return label
     }()
     
@@ -41,6 +52,7 @@ final class BookCell: UICollectionViewCell {
         button.translatesAutoresizingMaskIntoConstraints = false
         button.showsMenuAsPrimaryAction = true
         button.tintColor = .primaryAccent
+        
         return button
     }()
     
@@ -48,6 +60,7 @@ final class BookCell: UICollectionViewCell {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
         button.tintColor = .primaryAccent
+        
         return button
     }()
     
@@ -72,9 +85,16 @@ final class BookCell: UICollectionViewCell {
     func configure(with model: BookCellViewModel) {
         bookTitleLabel.text = model.title
         bookAuthorLabel.text = model.author
-        bookImageView.image = model.cover
         currentStatus = model.status
         currentIsFavorite = model.isFavorite
+        
+        if let image = model.cover {
+            bookImageView.image = image
+            coverSpinner.stopAnimating()
+        } else {
+//            bookImageView.image = UIConstants.Images.coverPlaceholder
+            coverSpinner.startAnimating()
+        }
         
         applyStatusAppearance()
         rebuildStatusMenu()
@@ -83,6 +103,7 @@ final class BookCell: UICollectionViewCell {
     
     func setCoverImage(_ image: UIImage?) {
         bookImageView.image = image
+        coverSpinner.stopAnimating()
     }
     
 }
@@ -91,6 +112,7 @@ private extension BookCell {
     
     func setupLayout() {
         contentView.addSubview(bookImageView)
+        contentView.addSubview(coverSpinner)
         contentView.addSubview(bookTitleLabel)
         contentView.addSubview(bookAuthorLabel)
         contentView.addSubview(statusButton)
@@ -101,6 +123,9 @@ private extension BookCell {
             bookImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
             bookImageView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
             bookImageView.heightAnchor.constraint(equalTo: bookImageView.widthAnchor, multiplier: UIConstants.BookCard.Size.imageHeightMultiplier),
+            
+            coverSpinner.centerXAnchor.constraint(equalTo: bookImageView.centerXAnchor),
+            coverSpinner.centerYAnchor.constraint(equalTo: bookImageView.centerYAnchor),
             
             bookTitleLabel.topAnchor.constraint(equalTo: bookImageView.bottomAnchor, constant: UIConstants.BookCard.Spacing.vertical),
             bookTitleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),

@@ -122,7 +122,13 @@ extension CatalogViewController: UICollectionViewDelegate, UICollectionViewDataS
 extension CatalogViewController: CatalogViewProtocol {
     
     func setLoading(_ flag: Bool) {
-        flag ? spinner.startAnimating() : spinner.stopAnimating()
+        if flag {
+            gridView.collectionView.isHidden = true
+            gridView.collectionView.backgroundView = nil
+            spinner.startAnimating()
+        } else {
+            spinner.stopAnimating()
+        }
     }
     
     func reloadData() {
@@ -155,7 +161,13 @@ extension CatalogViewController: CatalogViewProtocol {
     }
     
     func showEmptyState(_ flag: Bool) {
-        gridView.collectionView.backgroundView = flag ? emptyLabel : nil
+        if flag {
+            gridView.collectionView.backgroundView = emptyLabel
+            gridView.collectionView.isHidden = false
+        } else {
+            gridView.collectionView.backgroundView = nil
+            gridView.collectionView.isHidden = false 
+        }
     }
     
     func showError(message: String) {
@@ -171,7 +183,6 @@ extension CatalogViewController: UISearchBarDelegate {
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
         presenter.searchSubmitted(searchBar.text ?? "")
         searchBar.resignFirstResponder()
-        searchController.isActive = false
     }
 
     func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
