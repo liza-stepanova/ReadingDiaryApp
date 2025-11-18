@@ -2,17 +2,27 @@ import UIKit
 
 final class CatalogViewController: UIViewController {
     
-    private let data: [BookCellViewModel] = [
-        BookCellViewModel(id: UUID().uuidString, title: "Lfjf", author: "djjdj", cover: UIImage(named: "cover"), status: .none, isFavorite: true),
-        BookCellViewModel(id: UUID().uuidString, title: "Преступление и наказание ааооаоао  адзааззазазза захаххахахах", author: "djjdslkfwkjfnjkwnfjwbfhbfwdj", cover: UIImage(named: "cover"), status: .reading, isFavorite: false),
-        BookCellViewModel(id: UUID().uuidString, title: "Lfjf", author: "djjdj", cover: UIImage(named: "cover"), status: .none, isFavorite: true),
-        BookCellViewModel(id: UUID().uuidString, title: "Lfjf", author: "djjdj", cover: UIImage(named: "cover"), status: .none, isFavorite: true),
-        BookCellViewModel(id: UUID().uuidString, title: "Lfjf", author: "djjdj", cover: UIImage(named: "cover"), status: .none, isFavorite: true),
-        BookCellViewModel(id: UUID().uuidString, title: "Lfjf", author: "djjdj", cover: UIImage(named: "cover"), status: .none, isFavorite: true),
-        BookCellViewModel(id: UUID().uuidString, title: "Lfjf", author: "djjdj", cover: UIImage(named: "cover"), status: .none, isFavorite: true)
-    ]
+    private let presenter: CatalogPresenterProtocol
     
     private let gridView = BookGridView()
+    
+    private let emptyLabel: UILabel = {
+        let label = UILabel()
+        label.text = "Ничего не найдено"
+        label.textAlignment = .center
+        label.textColor = .secondaryAccent
+        label.numberOfLines = 0
+        
+        return label
+    }()
+
+    private let spinner: UIActivityIndicatorView = {
+        let indicator = UIActivityIndicatorView(style: .large)
+        indicator.hidesWhenStopped = true
+        indicator.translatesAutoresizingMaskIntoConstraints = false
+        
+        return indicator
+    }()
     
     private let searchController: UISearchController = {
         let searchController = UISearchController()
@@ -24,6 +34,15 @@ final class CatalogViewController: UIViewController {
         
         return searchController
     }()
+    
+    init(presenter: CatalogPresenterProtocol) {
+        self.presenter = presenter
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -40,6 +59,7 @@ private extension CatalogViewController {
     func setupNavigationBar() {
         navigationItem.searchController = searchController
         navigationItem.hidesSearchBarWhenScrolling = true
+        searchController.searchBar.delegate = self
     }
     
     func setupGridView() {
@@ -57,20 +77,79 @@ private extension CatalogViewController {
         ])
     }
     
+    func setupSpinner() {
+        view.addSubview(spinner)
+        NSLayoutConstraint.activate([
+            spinner.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            spinner.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+        ])
+    }
+    
 }
 
 extension CatalogViewController: UICollectionViewDelegate, UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        data.count
+        presenter.numberOfItems
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: BookCell.identifier, for: indexPath) as? BookCell else {
             return UICollectionViewCell()
         }
-        cell.configure(with: data[indexPath.row])
+        let data = presenter.itemViewModel(at: indexPath.item)
+        cell.configure(with: data)
+        
         return cell
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
+        presenter.willDisplayItem(at: indexPath.item)
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, didEndDisplaying cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
+        presenter.didEndDisplayingItem(at: indexPath.item)
+    }
+    
+}
+
+extension CatalogViewController: CatalogViewProtocol {
+    
+    func setLoading(_ flag: Bool) {
+        flag ? spinner.startAnimating() : spinner.stopAnimating()
+    }
+    
+    func reloadData() {
+        gridView.collectionView.reloadData()
+    }
+    
+    func reloadItems(at indexes: [Int]) {
+        let paths = indexes.map { IndexPath(item: $0, section: 0) }
+        gridView.collectionView.reloadItems(at: paths)
+    }
+    
+    func showEmptyState(_ flag: Bool) {
+        gridView.collectionView.backgroundView = flag ? emptyLabel : nil
+    }
+    
+    func showError(message: String) {
+        let alert = UIAlertController(title: "Ошибка", message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        present(alert, animated: true)
+    }
+
+}
+
+extension CatalogViewController: UISearchBarDelegate {
+    
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        presenter.searchSubmitted(searchBar.text ?? "")
+        searchBar.resignFirstResponder()
+        searchController.isActive = false
+    }
+
+    func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
+        presenter.cancelSearch()
     }
     
 }
