@@ -24,4 +24,16 @@ struct LocalBook: Hashable {
         self.dateAdded = Date()
     }
     
+    init(entity: LocalBookEntity) {
+        self.id = entity.bookId ?? ""
+        self.title = entity.title ?? ""
+        self.author = entity.author ?? ""
+        self.coverId = Int(entity.coverId)
+        self.firstPublishYear = Int(entity.firstPublishYear)
+        self.coverImageData = entity.coverImageData
+        self.readingStatus = ReadingStatus(rawValue: Int(entity.readingStatus)) ?? .none
+        self.isFavorite = entity.isFavorite
+        self.dateAdded = entity.dateAdded ?? Date()
+    }
+    
 }
