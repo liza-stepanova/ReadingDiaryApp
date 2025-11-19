@@ -1,4 +1,4 @@
-import Foundation
+import UIKit
 
 final class FavoritesPresenter: FavoritesPresenterProtocol {
     
@@ -64,3 +64,28 @@ final class FavoritesPresenter: FavoritesPresenterProtocol {
     }
     
 }
+
+extension FavoritesPresenter: FavoritesInteractorOutput {
+    
+    func didLoadFavorites(_ books: [LocalBook]) {
+        favoriteBooks = books.sorted(by: { $0.dateAdded > $1.dateAdded })
+        viewModels = books.map {
+            BookCellViewModel(
+                id: $0.id,
+                title: $0.title,
+                author: $0.author,
+                cover: $0.coverImageData.flatMap { UIImage(data: $0) },
+                status: $0.readingStatus,
+                isFavorite: $0.isFavorite
+            )
+        }
+        view?.showEmptyState(viewModels.isEmpty)
+        view?.reloadData()
+    }
+
+    func didFailFavorites(_ error: Error) {
+        view?.showError(message: error.localizedDescription)
+    }
+    
+}
+
