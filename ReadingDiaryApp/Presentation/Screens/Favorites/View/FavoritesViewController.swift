@@ -71,6 +71,13 @@ extension FavoritesViewController: UICollectionViewDelegate, UICollectionViewDat
         let data = presenter.itemViewModel(at: indexPath.item)
         cell.configure(with: data)
         
+        cell.onStatusChange = { [weak self] newStatus in
+            self?.presenter.didChangeStatus(for: indexPath.item, to: newStatus)
+        }
+        cell.onFavoriteToggle = { [weak self] isFavorite in
+            self?.presenter.didToggleFavorite(for: indexPath.item, isFavorite: isFavorite)
+        }
+        
         return cell
     }
     
@@ -80,6 +87,17 @@ extension FavoritesViewController: FavoritesViewProtocol {
     
     func reloadData() {
         gridView.collectionView.reloadData()
+    }
+    
+    func reloadItems(at indexes: [Int]) {
+        let collectionView = gridView.collectionView
+        DispatchQueue.main.async {
+            let paths = indexes
+                .filter { $0 >= 0 && $0 < collectionView.numberOfItems(inSection: 0) }
+                .map { IndexPath(item: $0, section: 0) }
+            guard !paths.isEmpty else { return }
+            collectionView.performBatchUpdates({ collectionView.reloadItems(at: paths) }, completion: nil)
+        }
     }
     
     func showEmptyState(_ flag: Bool) {
