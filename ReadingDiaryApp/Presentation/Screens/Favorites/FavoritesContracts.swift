@@ -1,18 +1,30 @@
 import Foundation
 
-protocol FavoritesPresenterProtocol {
+protocol FavoritesPresenterProtocol: AnyObject {
     
     var numberOfItems: Int { get }
     func itemViewModel(at index: Int) -> BookCellViewModel
     
-    func setViewController(view: CatalogViewProtocol)
+    func setViewController(view: FavoritesViewProtocol)
     func viewDidLoad()
+    
+    func didChangeStatus(for index: Int, to status: ReadingStatus)
+    func didToggleFavorite(for index: Int, isFavorite: Bool)
 }
 
-protocol FavoritesViewProtocol {
+protocol FavoritesViewProtocol: AnyObject {
     
     func reloadData()
+    func reloadItems(at indexes: [Int])
     func showEmptyState(_ flag: Bool)
     func showError(message: String)
+    
+}
+
+protocol FavoritesInteractorInput: AnyObject {
+    
+    func fetchFavorites()
+    func updateBookStatus(bookId: String, status: ReadingStatus)
+    func toggleFavorite(bookId: String, isFavorite: Bool)
     
 }
