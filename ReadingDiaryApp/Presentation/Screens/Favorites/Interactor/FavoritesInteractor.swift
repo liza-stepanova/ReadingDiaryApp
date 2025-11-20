@@ -3,11 +3,11 @@ import Foundation
 final class FavoritesInteractor: FavoritesInteractorInput {
     
     struct Dependencies {
-        let repository: FavoritesRepositoryProtocol
+        let repository: LocalBooksRepositoryProtocol
     }
     
     weak var output: FavoritesInteractorOutput?
-    private let repository: FavoritesRepositoryProtocol
+    private let repository: LocalBooksRepositoryProtocol
 
     init(dependencies: Dependencies) {
         self.repository = dependencies.repository

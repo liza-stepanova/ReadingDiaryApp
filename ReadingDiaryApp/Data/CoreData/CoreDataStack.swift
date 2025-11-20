@@ -1,6 +1,13 @@
 import CoreData
 
-final class CoreDataStack {
+protocol CoreDataStackProtocol {
+    
+    var viewContext: NSManagedObjectContext { get }
+    func newBackgroundContext() -> NSManagedObjectContext
+    
+}
+
+final class CoreDataStack: CoreDataStackProtocol {
     
     let container: NSPersistentContainer
 
@@ -19,16 +26,18 @@ final class CoreDataStack {
         }
 
         container.viewContext.automaticallyMergesChangesFromParent = true
-        container.viewContext.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
+        container.viewContext.mergePolicy = NSMergeByPropertyStoreTrumpMergePolicy
     }
 
     var viewContext: NSManagedObjectContext {
         container.viewContext
     }
 
-    var backgroundContext: NSManagedObjectContext {
+    func newBackgroundContext() -> NSManagedObjectContext {
         let context = container.newBackgroundContext()
         context.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
+        context.undoManager = nil
+        
         return context
     }
     
