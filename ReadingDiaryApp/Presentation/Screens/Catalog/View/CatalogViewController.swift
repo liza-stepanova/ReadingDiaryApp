@@ -145,6 +145,14 @@ extension CatalogViewController: CatalogViewProtocol {
         }
     }
     
+    func setBottomLoading(_ flag: Bool) {
+        if flag {
+            gridView.bottomSpinner.startAnimating()
+        } else {
+            gridView.bottomSpinner.stopAnimating()
+        }
+    }
+    
     func reloadData() {
         gridView.collectionView.reloadData()
     }

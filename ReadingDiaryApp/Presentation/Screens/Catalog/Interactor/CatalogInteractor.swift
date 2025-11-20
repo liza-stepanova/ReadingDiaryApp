@@ -17,6 +17,13 @@ final class CatalogInteractor: CatalogInteractorInput {
     
     private var currentTask: URLSessionDataTask?
     private var coverTasks: [String: URLSessionDataTask] = [:]
+    
+    private var currentQuery: String = ""
+    private var currentPage: Int = 0
+    private let pageSize: Int = 20
+    private var isLoadingPage = false
+    private var hasMorePages = true
+
 
     init(dependencies: Dependencies) {
         self.service = dependencies.service
@@ -26,34 +33,27 @@ final class CatalogInteractor: CatalogInteractorInput {
 
     func searchBooks(query: String) {
         currentTask?.cancel()
-        currentTask = service.searchBooks(query: query, page: 1, limit: 20) { [weak self] result in
-            guard let self else { return }
-            switch result {
-            case .success(let books):
-                let ids = books.map(\.id)
-                self.localBooksRepository.fetch(byIDs: ids) { [weak self] localResult in
-                    guard let self else { return }
-                                
-                    let localMap: [String: LocalBook]
-                    switch localResult {
-                    case .success(let map):
-                        localMap = map
-                    case .failure:
-                        localMap = [:]
-                    }
-                                
-                    self.output?.didLoadBooks(books, localState: localMap)
-                }
-            case .failure(let error):
-                if error.isCancelled { return }
-                self.output?.didFailSearch(error)
-            }
-        }
+        currentQuery = query
+        currentPage = 0
+        hasMorePages = true
+        
+        guard !query.isEmpty else { return }
+               
+        loadPage(page: 1, isReset: true)
+    }
+    
+    func loadNextPage() {
+        guard !currentQuery.isEmpty, hasMorePages, !isLoadingPage else { return }
+        loadPage(page: currentPage + 1, isReset: false)
     }
 
     func cancelSearch() {
         currentTask?.cancel()
         currentTask = nil
+        isLoadingPage = false
+        hasMorePages = true
+        currentPage = 0
+        currentQuery = ""
     }
     
     func loadCover(for id: String, url: URL) {
@@ -106,6 +106,44 @@ final class CatalogInteractor: CatalogInteractorInput {
         currentTask?.cancel()
         coverTasks.values.forEach { $0.cancel() }
         coverTasks.removeAll()
+    }
+    
+}
+
+private extension CatalogInteractor {
+    
+    func loadPage(page: Int, isReset: Bool) {
+        isLoadingPage = true
+        
+        currentTask = service.searchBooks(query: currentQuery, page: page, limit: pageSize) { [weak self] result in
+            guard let self else { return }
+            self.isLoadingPage = false
+                
+            switch result {
+            case .success(let books):
+                self.currentPage = page
+                self.hasMorePages = (books.count == self.pageSize)
+                    
+                let ids = books.map(\.id)
+                self.localBooksRepository.fetch(byIDs: ids) { [weak self] localResult in
+                    guard let self else { return }
+                        
+                    let localMap: [String: LocalBook]
+                    switch localResult {
+                    case .success(let map):
+                        localMap = map
+                    case .failure:
+                        localMap = [:]
+                    }
+                        
+                    self.output?.didLoadBooks(books, isReset: isReset, localState: localMap)
+                }
+                    
+                case .failure(let error):
+                    if error.isCancelled { return }
+                    self.output?.didFailSearch(error)
+            }
+        }
     }
     
 }

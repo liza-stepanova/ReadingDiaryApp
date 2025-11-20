@@ -12,6 +12,8 @@ final class CatalogPresenter: CatalogPresenterProtocol {
     private var books: [Book] = []
     private var viewModels: [BookCellViewModel] = []
     
+    private var isLoadingNextPage = false
+    
     var numberOfItems: Int { viewModels.count }
 
     init(dependencies: Dependencies) {
@@ -24,7 +26,7 @@ final class CatalogPresenter: CatalogPresenterProtocol {
 
     func viewDidLoad() {
         view?.reloadData()
-        view?.showEmptyState(true)
+        view?.showEmptyState(false)
     }
 
     func searchSubmitted(_ text: String) {
@@ -34,7 +36,7 @@ final class CatalogPresenter: CatalogPresenterProtocol {
             books = []
             viewModels = []
             view?.setLoading(false)
-            view?.showEmptyState(true)
+            view?.showEmptyState(false)
             view?.reloadData()
             return
         }
@@ -46,7 +48,12 @@ final class CatalogPresenter: CatalogPresenterProtocol {
 
     func cancelSearch() {
         interactor.cancelSearch()
+        cancelAllCoverLoads()
+        books = []
+        viewModels = []
         view?.setLoading(false)
+        view?.showEmptyState(false)
+        view?.reloadData()
     }
     
     func itemViewModel(at index: Int) -> BookCellViewModel {
@@ -62,8 +69,15 @@ final class CatalogPresenter: CatalogPresenterProtocol {
             view?.reloadItems(at: [index])
             return
         }
-        
         interactor.loadCover(for: viewModels[index].id, url: url)
+        
+        let thresholdIndex = max(0, viewModels.count - 5)
+        if index >= thresholdIndex, !isLoadingNextPage {
+            isLoadingNextPage = true
+            view?.setBottomLoading(true)
+            interactor.loadNextPage()
+        }
+
     }
     
     func didEndDisplayingItem(at index: Int) {
@@ -111,26 +125,51 @@ final class CatalogPresenter: CatalogPresenterProtocol {
 
 extension CatalogPresenter: CatalogInteractorOutput {
     
-    func didLoadBooks(_ books: [Book], localState: [String: LocalBook]) {
-        self.books = books
-        self.viewModels = books.map { book in
-            let local = localState[book.id]
-            return BookCellViewModel(
-                id: book.id,
-                title: book.title,
-                author: book.author,
-                cover: nil,
-                status: local?.readingStatus ?? .none,
-                isFavorite: local?.isFavorite ?? false
-            )
+    func didLoadBooks(_ books: [Book], isReset: Bool, localState: [String: LocalBook]) {
+        if isReset {
+            self.books = books
+            self.viewModels = books.map { book in
+                let local = localState[book.id]
+                return BookCellViewModel(
+                    id: book.id,
+                    title: book.title,
+                    author: book.author,
+                    cover: nil,
+                    status: local?.readingStatus ?? .none,
+                    isFavorite: local?.isFavorite ?? false
+                )
+            }
+            view?.setLoading(false)
+            view?.setBottomLoading(false)
+            view?.showEmptyState(viewModels.isEmpty)
+            view?.reloadData()
+        } else {
+            let startIndex = self.books.count
+            self.books.append(contentsOf: books)
+                        
+            let newViewModels: [BookCellViewModel] = books.map { book in
+                let local = localState[book.id]
+                return BookCellViewModel(
+                    id: book.id,
+                    title: book.title,
+                    author: book.author,
+                    cover: nil,
+                    status: local?.readingStatus ?? .none,
+                    isFavorite: local?.isFavorite ?? false
+                )
+            }
+            self.viewModels.append(contentsOf: newViewModels)
+            isLoadingNextPage = false
+            view?.setBottomLoading(false)
+            view?.showEmptyState(viewModels.isEmpty)
+            view?.reloadData()
         }
-        view?.setLoading(false)
-        view?.showEmptyState(viewModels.isEmpty)
-        view?.reloadData()
     }
 
     func didFailSearch(_ error: NetworkError) {
         view?.setLoading(false)
+        isLoadingNextPage = false
+        view?.setBottomLoading(false)
         view?.showError(message: error.localizedDescription)
     }
     
