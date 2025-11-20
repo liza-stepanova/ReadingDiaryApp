@@ -1,31 +1,6 @@
 import Foundation
 import CoreData
 
-protocol LocalBooksRepositoryProtocol {
-    
-    func fetchFavorites(completion: @escaping (Result<[LocalBook], Error>) -> Void)
-    func fetchMyBooks(filter: MyBooksFilter, completion: @escaping (Result<[LocalBook], Error>) -> Void)
-    
-    func upsert(_ book: LocalBook, completion: @escaping (Result<Void, Error>) -> Void)
-    func updateStatus(bookId: String, status: ReadingStatus, completion: @escaping (Result<Void, Error>) -> Void)
-    func toggleFavorite(bookId: String, isFavorite: Bool, completion: @escaping (Result<Void, Error>) -> Void)
-    func delete(bookId: String, completion: @escaping (Result<Void, Error>) -> Void)
-    
-    func fetch(byIDs ids: [String], completion: @escaping (Result<[String: LocalBook], Error>) -> Void)
-    func updateCoverData(bookId: String, data: Data?, completion: @escaping (Result<Void, Error>) -> Void)
-    
-}
-
-enum MyBooksFilter {
-    case all
-    case reading
-    case done
-}
-
-enum FavoritesRepositoryError: Error {
-    case notFound
-}
-
 final class CoreDataLocalBooksRepository: LocalBooksRepositoryProtocol {
 
     struct Dependencies {
@@ -202,7 +177,7 @@ private extension CoreDataLocalBooksRepository {
         fetchRequest.fetchLimit = 1
         fetchRequest.predicate = NSPredicate(format: "bookId == %@", bookId)
         guard let obj = try managedObjectContext.fetch(fetchRequest).first else {
-            throw FavoritesRepositoryError.notFound
+            throw LocalBooksRepositoryError.notFound
         }
         
         return obj
