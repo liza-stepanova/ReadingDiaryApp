@@ -15,9 +15,10 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             imageLoader: appContainer.imageLoader,
             localBooksRepository: appContainer.localBooksRepository
         )
+        let favoritesFactory = FavoritesModuleFactory(repository: appContainer.localBooksRepository)
         
         let window = UIWindow(windowScene: windowScene)
-        window.rootViewController = RootTabBarController(catalogFactory: catalogFactory)
+        window.rootViewController = RootTabBarController(catalogFactory: catalogFactory, favoritesFactory: favoritesFactory)
         window.makeKeyAndVisible()
         
         self.window = window

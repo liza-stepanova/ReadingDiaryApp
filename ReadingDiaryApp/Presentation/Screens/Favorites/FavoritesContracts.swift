@@ -7,6 +7,7 @@ protocol FavoritesPresenterProtocol: AnyObject {
     
     func setViewController(view: FavoritesViewProtocol)
     func viewDidLoad()
+    func viewWillAppear()
     
     func didChangeStatus(for index: Int, to status: ReadingStatus)
     func didToggleFavorite(for index: Int, isFavorite: Bool)
