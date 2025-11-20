@@ -5,12 +5,14 @@ final class CatalogInteractor: CatalogInteractorInput {
     struct Dependencies {
         let service: OpenLibraryServiceProtocol
         let imageLoader: ImageLoaderProtocol
+        let localBooksRepository: LocalBooksRepositoryProtocol
     }
     
     weak var output: CatalogInteractorOutput?
     
     private let service: OpenLibraryServiceProtocol
     private let imageLoader: ImageLoaderProtocol
+    private let localBooksRepository: LocalBooksRepositoryProtocol
     
     private var currentTask: URLSessionDataTask?
     private var coverTasks: [String: URLSessionDataTask] = [:]
@@ -18,6 +20,7 @@ final class CatalogInteractor: CatalogInteractorInput {
     init(dependencies: Dependencies) {
         self.service = dependencies.service
         self.imageLoader = dependencies.imageLoader
+        self.localBooksRepository = dependencies.localBooksRepository
     }
 
     func searchBooks(query: String) {
@@ -26,7 +29,20 @@ final class CatalogInteractor: CatalogInteractorInput {
             guard let self else { return }
             switch result {
             case .success(let books):
-                self.output?.didLoadBooks(books)
+                let ids = books.map(\.id)
+                self.localBooksRepository.fetch(byIDs: ids) { [weak self] localResult in
+                    guard let self else { return }
+                                
+                    let localMap: [String: LocalBook]
+                    switch localResult {
+                    case .success(let map):
+                        localMap = map
+                    case .failure:
+                        localMap = [:]
+                    }
+                                
+                    self.output?.didLoadBooks(books, localState: localMap)
+                }
             case .failure(let error):
                 if error.isCancelled { return }
                 self.output?.didFailSearch(error)
@@ -65,6 +81,21 @@ final class CatalogInteractor: CatalogInteractorInput {
         if let task = coverTasks[id] {
             imageLoader.cancel(task: task)
             coverTasks[id] = nil
+        }
+    }
+    
+    func updateBookState(book: Book, status: ReadingStatus, isFavorite: Bool) {
+        let local = LocalBook(
+            from: book,
+            status: status,
+            isFavorite: isFavorite
+        )
+        
+        localBooksRepository.upsert(local) { [weak self] result in
+            guard let self else { return }
+            if case let .failure(error) = result {
+                self.output?.didFailUpdateBookState(bookId: book.id, error: error)
+            }
         }
     }
 
