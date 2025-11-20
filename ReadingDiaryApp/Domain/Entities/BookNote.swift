@@ -13,7 +13,8 @@ struct BookNote: Hashable {
          bookId: String,
          text: String,
          createdAt: Date = Date(),
-         updatedAt: Date? = nil) {
+         updatedAt: Date? = nil
+    ) {
         self.id = id
         self.bookId = bookId
         self.text = text

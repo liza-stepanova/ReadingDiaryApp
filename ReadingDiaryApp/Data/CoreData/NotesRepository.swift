@@ -3,22 +3,27 @@ import CoreData
 
 protocol NotesRepositoryProtocol {
     
-    func fetchNotes(for bookId: String, completion: @escaping (Result<[BookNote], Error>) -> Void)
+    func fetchNotes(for bookId: String, sort: NotesSortOption, completion: @escaping (Result<[BookNote], Error>) -> Void)
     func fetchRecentNotes(limit: Int, completion: @escaping (Result<[BookNote], Error>) -> Void)
     
     func add(_ note: BookNote, completion: @escaping (Result<Void, Error>) -> Void)
     func upsert(_ note: BookNote, completion: @escaping (Result<Void, Error>) -> Void)
     func delete(noteId: String, completion: @escaping (Result<Void, Error>) -> Void)
     func deleteAllNotes(for bookId: String, completion: @escaping (Result<Void, Error>) -> Void)
-    func updateText(noteId: String,
-                    newText: String,
-                    updatedAt: Date,
-                    completion: @escaping (Result<Void, Error>) -> Void)
+    func updateText(noteId: String, newText: String, updatedAt: Date, completion: @escaping (Result<Void, Error>) -> Void)
+    func updateOrder(for bookId: String, orderedNoteIds: [String], completion: @escaping (Result<Void, Error>) -> Void)
+    
 }
 
 enum NotesRepositoryError: Error {
     case notFound
     case bookNotFound
+}
+
+enum NotesSortOption {
+    case createdAt
+    case updatedAt
+    case manual
 }
 
 final class CoreDataNotesRepository: NotesRepositoryProtocol {
@@ -46,15 +51,24 @@ final class CoreDataNotesRepository: NotesRepositoryProtocol {
         stack.viewContext.mergePolicy = NSMergeByPropertyStoreTrumpMergePolicy
     }
 
-    func fetchNotes(for bookId: String, completion: @escaping (Result<[BookNote], Error>) -> Void) {
+    func fetchNotes(for bookId: String, sort: NotesSortOption = .manual, completion: @escaping (Result<[BookNote], Error>) -> Void) {
         context.perform { [weak self] in
             guard let self else { return }
             do {
                 let request: NSFetchRequest<BookNoteEntity> = BookNoteEntity.fetchRequest()
                 request.predicate = NSPredicate(format: "book.bookId == %@", bookId)
 
-                let byCreated = NSSortDescriptor(key: #keyPath(BookNoteEntity.createdAt), ascending: false)
-                request.sortDescriptors = [byCreated]
+                let sortDescriptor: NSSortDescriptor
+                switch sort {
+                case .createdAt:
+                    sortDescriptor = NSSortDescriptor(key: #keyPath(BookNoteEntity.createdAt), ascending: false)
+                case .updatedAt:
+                    sortDescriptor = NSSortDescriptor(key: #keyPath(BookNoteEntity.updatedAt), ascending: false)
+                case .manual:
+                    sortDescriptor = NSSortDescriptor(key: #keyPath(BookNoteEntity.orderIndex), ascending: true)
+                }
+                
+                request.sortDescriptors = [sortDescriptor]
                 request.fetchBatchSize = 50
 
                 let entities = try self.context.fetch(request)
@@ -95,6 +109,8 @@ final class CoreDataNotesRepository: NotesRepositoryProtocol {
                 let entity = BookNoteEntity(context: self.context)
                 self.fill(entity: entity, with: note)
                 entity.book = bookEntity
+                
+                entity.orderIndex = try self.nextOrderIndex(for: bookEntity, in: self.context)
 
                 try self.saveIfNeeded(self.context)
                 self.callbackQueue.async { completion(.success(())) }
@@ -116,6 +132,12 @@ final class CoreDataNotesRepository: NotesRepositoryProtocol {
                     }
                     entity.book = bookEntity
                 }
+                
+                if entity.orderIndex == 0 {
+                    if let book = entity.book {
+                        entity.orderIndex = try self.nextOrderIndex(for: book, in: self.context)
+                    }
+                }
 
                 self.fill(entity: entity, with: note)
                 try self.saveIfNeeded(self.context)
@@ -126,10 +148,7 @@ final class CoreDataNotesRepository: NotesRepositoryProtocol {
         }
     }
 
-    func updateText(noteId: String,
-                    newText: String,
-                    updatedAt: Date,
-                    completion: @escaping (Result<Void, Error>) -> Void) {
+    func updateText(noteId: String, newText: String, updatedAt: Date, completion: @escaping (Result<Void, Error>) -> Void) {
         context.perform { [weak self] in
             guard let self else { return }
             do {
@@ -168,6 +187,42 @@ final class CoreDataNotesRepository: NotesRepositoryProtocol {
 
                 let entities = try self.context.fetch(request)
                 entities.forEach { self.context.delete($0) }
+                try self.saveIfNeeded(self.context)
+                self.callbackQueue.async { completion(.success(())) }
+            } catch {
+                self.callbackQueue.async { completion(.failure(error)) }
+            }
+        }
+    }
+    
+    func updateOrder(for bookId: String, orderedNoteIds: [String], completion: @escaping (Result<Void, Error>) -> Void) {
+        context.perform { [weak self] in
+            guard let self else { return }
+            do {
+                guard !orderedNoteIds.isEmpty else {
+                    self.callbackQueue.async { completion(.success(())) }
+                    return
+                }
+
+                let request: NSFetchRequest<BookNoteEntity> = BookNoteEntity.fetchRequest()
+                request.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
+                    NSPredicate(format: "book.bookId == %@", bookId),
+                    NSPredicate(format: "noteId IN %@", orderedNoteIds)
+                ])
+
+                let entities = try self.context.fetch(request)
+
+                let map: [String: BookNoteEntity] = Dictionary(
+                    uniqueKeysWithValues: entities.compactMap { entity in
+                        guard let id = entity.noteId else { return nil }
+                        return (id, entity)
+                    }
+                )
+
+                for (index, noteId) in orderedNoteIds.enumerated() {
+                    map[noteId]?.orderIndex = Int64(index)
+                }
+
                 try self.saveIfNeeded(self.context)
                 self.callbackQueue.async { completion(.success(())) }
             } catch {
@@ -218,6 +273,21 @@ private extension CoreDataNotesRepository {
 
     func saveIfNeeded(_ context: NSManagedObjectContext) throws {
         if context.hasChanges { try context.save() }
+    }
+    
+    func nextOrderIndex(for book: LocalBookEntity, in context: NSManagedObjectContext) throws -> Int64 {
+        let request: NSFetchRequest<BookNoteEntity> = BookNoteEntity.fetchRequest()
+        request.predicate = NSPredicate(format: "book == %@", book)
+        request.sortDescriptors = [
+            NSSortDescriptor(key: #keyPath(BookNoteEntity.orderIndex), ascending: false)
+        ]
+        request.fetchLimit = 1
+
+        if let last = try context.fetch(request).first {
+            return last.orderIndex + 1
+        } else {
+            return 0
+        }
     }
     
 }

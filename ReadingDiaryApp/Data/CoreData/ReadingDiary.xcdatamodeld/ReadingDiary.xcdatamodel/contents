@@ -3,6 +3,7 @@
     <entity name="BookNoteEntity" representedClassName="BookNoteEntity" syncable="YES" codeGenerationType="class">
         <attribute name="createdAt" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="noteId" attributeType="String"/>
+        <attribute name="orderIndex" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="text" attributeType="String" defaultValueString=""/>
         <attribute name="updatedAt" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <relationship name="book" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="LocalBookEntity" inverseName="notes" inverseEntity="LocalBookEntity"/>
