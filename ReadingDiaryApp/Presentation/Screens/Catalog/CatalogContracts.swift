@@ -8,15 +8,19 @@ protocol CatalogInteractorInput: AnyObject {
     func loadCover(for id: String, url: URL)
     func cancelCoverLoad(for id: String)
     
+    func updateBookState(book: Book, status: ReadingStatus, isFavorite: Bool)
+    
 }
 
 protocol CatalogInteractorOutput: AnyObject {
     
-    func didLoadBooks(_ books: [Book])
+    func didLoadBooks(_ books: [Book], localState: [String: LocalBook])
     func didFailSearch(_ error: NetworkError)
     
     func didLoadCover(id: String, image: UIImage)
     func didFailLoadCover(id: String, error: NetworkError)
+    
+    func didFailUpdateBookState(bookId: String, error: Error) 
     
 }
 
@@ -32,6 +36,9 @@ protocol CatalogPresenterProtocol: AnyObject {
     
     func willDisplayItem(at index: Int)
     func didEndDisplayingItem(at index: Int)
+    
+    func didToggleFavorite(at index: Int, to isFavorite: Bool)
+    func didChangeStatus(at index: Int, to status: ReadingStatus)
 }
 
 protocol CatalogViewProtocol: AnyObject {

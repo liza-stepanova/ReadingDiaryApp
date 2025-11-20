@@ -18,6 +18,10 @@ final class CoreDataStack: CoreDataStackProtocol {
             desc.shouldMigrateStoreAutomatically = true
             desc.shouldInferMappingModelAutomatically = true
         }
+        
+//        if let url = container.persistentStoreDescriptions.first?.url {
+//            print("Core Data store URL: \(url.path)")
+//        }
 
         container.loadPersistentStores { _, error in
             if let error = error {

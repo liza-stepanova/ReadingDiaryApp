@@ -71,20 +71,55 @@ final class CatalogPresenter: CatalogPresenterProtocol {
         interactor.cancelCoverLoad(for: viewModels[index].id)
     }
     
+    func didToggleFavorite(at index: Int, to isFavorite: Bool) {
+        guard index >= 0, index < viewModels.count else { return }
+ 
+        let book = books[index]
+        var viewModel = viewModels[index]
+        
+        viewModel.isFavorite = isFavorite
+        viewModels[index] = viewModel
+                
+        view?.reloadItems(at: [index])
+        interactor.updateBookState(
+            book: book,
+            status: viewModel.status,
+            isFavorite: isFavorite
+        )
+    }
+    
+    func didChangeStatus(at index: Int, to status: ReadingStatus) {
+        guard index >= 0, index < viewModels.count else { return }
+                
+        let book = books[index]
+        var viewModel = viewModels[index]
+                
+        viewModel.status = status
+        viewModels[index] = viewModel
+                
+        view?.reloadItems(at: [index])
+        interactor.updateBookState(
+            book: book,
+            status: status,
+            isFavorite: viewModel.isFavorite
+        )
+    }
+    
 }
 
 extension CatalogPresenter: CatalogInteractorOutput {
     
-    func didLoadBooks(_ books: [Book]) {
+    func didLoadBooks(_ books: [Book], localState: [String: LocalBook]) {
         self.books = books
-        self.viewModels = books.map {
-            BookCellViewModel(
-                id: $0.id,
-                title: $0.title,
-                author: $0.author,
+        self.viewModels = books.map { book in
+            let local = localState[book.id]
+            return BookCellViewModel(
+                id: book.id,
+                title: book.title,
+                author: book.author,
                 cover: nil,
-                status: .none,
-                isFavorite: false
+                status: local?.readingStatus ?? .none,
+                isFavorite: local?.isFavorite ?? false
             )
         }
         view?.setLoading(false)
@@ -113,6 +148,10 @@ extension CatalogPresenter: CatalogInteractorOutput {
             viewModels[index].cover = UIConstants.Images.coverPlaceholder
             view?.updateCover(at: index, image: UIConstants.Images.coverPlaceholder)
         }
+    }
+    
+    func didFailUpdateBookState(bookId: String, error: any Error) {
+        view?.showError(message: error.localizedDescription)
     }
     
 }

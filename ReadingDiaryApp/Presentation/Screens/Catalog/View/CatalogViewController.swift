@@ -106,6 +106,20 @@ extension CatalogViewController: UICollectionViewDelegate, UICollectionViewDataS
         let data = presenter.itemViewModel(at: indexPath.item)
         cell.configure(with: data)
         
+        cell.onStatusChange = { [weak self, weak cell] newStatus in
+            guard let self, let cell, let indexPath = self.gridView.collectionView.indexPath(for: cell)
+            else { return }
+                
+            self.presenter.didChangeStatus(at: indexPath.item, to: newStatus)
+        }
+        
+        cell.onFavoriteToggle = { [weak self, weak cell] isFavorite in
+            guard let self, let cell, let indexPath = self.gridView.collectionView.indexPath(for: cell)
+            else { return }
+                
+            self.presenter.didToggleFavorite(at: indexPath.item, to: isFavorite)
+        }
+        
         return cell
     }
     
