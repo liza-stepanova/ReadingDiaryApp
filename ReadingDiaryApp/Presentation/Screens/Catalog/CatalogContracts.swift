@@ -8,7 +8,7 @@ protocol CatalogInteractorInput: AnyObject {
     func loadCover(for id: String, url: URL)
     func cancelCoverLoad(for id: String)
     
-    func updateBookState(book: Book, status: ReadingStatus, isFavorite: Bool)
+    func updateBookState(book: Book, status: ReadingStatus, isFavorite: Bool, cover: UIImage?)
     
 }
 

@@ -205,7 +205,9 @@ private extension CoreDataLocalBooksRepository {
         entity.author = model.author
         entity.coverId = Int64(model.coverId ?? 0)
         entity.firstPublishYear = Int16(model.firstPublishYear ?? 0)
-        entity.coverImageData = model.coverImageData
+        if let data = model.coverImageData {
+            entity.coverImageData = data 
+        }
         entity.readingStatus = Int16(model.readingStatus.rawValue)
         entity.isFavorite = model.isFavorite
         entity.dateAdded = model.dateAdded

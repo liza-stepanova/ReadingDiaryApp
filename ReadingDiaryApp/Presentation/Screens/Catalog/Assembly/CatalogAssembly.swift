@@ -11,9 +11,7 @@ enum CatalogAssembly {
             imageLoader: imageLoader,
             localBooksRepository: localBooksRepository)
         )
-
         let presenter = CatalogPresenter(dependencies: .init(interactor: interactor))
-
         let view = CatalogViewController(dependencies: .init(presenter: presenter))
 
         interactor.output = presenter

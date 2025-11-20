@@ -26,6 +26,10 @@ final class FavoritesPresenter: FavoritesPresenterProtocol {
         loadFavorites()
     }
     
+    func viewWillAppear() {
+        loadFavorites()
+    }
+    
     func itemViewModel(at index: Int) -> BookCellViewModel {
         viewModels[index]
     }
@@ -69,7 +73,7 @@ extension FavoritesPresenter: FavoritesInteractorOutput {
     
     func didLoadFavorites(_ books: [LocalBook]) {
         favoriteBooks = books.sorted(by: { $0.dateAdded > $1.dateAdded })
-        viewModels = books.map {
+        viewModels = favoriteBooks.map {
             BookCellViewModel(
                 id: $0.id,
                 title: $0.title,
@@ -88,4 +92,3 @@ extension FavoritesPresenter: FavoritesInteractorOutput {
     }
     
 }
-

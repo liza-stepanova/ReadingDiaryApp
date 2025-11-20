@@ -1,4 +1,5 @@
 import Foundation
+import UIKit
 
 final class CatalogInteractor: CatalogInteractorInput {
     
@@ -84,11 +85,13 @@ final class CatalogInteractor: CatalogInteractorInput {
         }
     }
     
-    func updateBookState(book: Book, status: ReadingStatus, isFavorite: Bool) {
+    func updateBookState(book: Book, status: ReadingStatus, isFavorite: Bool, cover: UIImage?) {
+        let coverData = cover?.pngData()
         let local = LocalBook(
             from: book,
             status: status,
-            isFavorite: isFavorite
+            isFavorite: isFavorite,
+            coverImageData: coverData
         )
         
         localBooksRepository.upsert(local) { [weak self] result in

@@ -12,13 +12,13 @@ struct LocalBook: Hashable {
     var isFavorite: Bool
     let dateAdded: Date
     
-    init(from book: Book, status: ReadingStatus = .none, isFavorite: Bool = false) {
+    init(from book: Book, status: ReadingStatus = .none, isFavorite: Bool = false, coverImageData: Data? = nil) {
         self.id = book.id
         self.title = book.title
         self.author = book.author
         self.coverId = book.coverId
         self.firstPublishYear = book.firstPublishYear
-        self.coverImageData = nil
+        self.coverImageData = coverImageData
         self.readingStatus = status
         self.isFavorite = isFavorite
         self.dateAdded = Date()

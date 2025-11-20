@@ -84,7 +84,8 @@ final class CatalogPresenter: CatalogPresenterProtocol {
         interactor.updateBookState(
             book: book,
             status: viewModel.status,
-            isFavorite: isFavorite
+            isFavorite: isFavorite,
+            cover: viewModel.cover
         )
     }
     
@@ -101,7 +102,8 @@ final class CatalogPresenter: CatalogPresenterProtocol {
         interactor.updateBookState(
             book: book,
             status: status,
-            isFavorite: viewModel.isFavorite
+            isFavorite: viewModel.isFavorite,
+            cover: viewModel.cover
         )
     }
     

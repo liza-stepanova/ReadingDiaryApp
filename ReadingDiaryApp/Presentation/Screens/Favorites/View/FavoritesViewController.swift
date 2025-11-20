@@ -36,6 +36,11 @@ final class FavoritesViewController: UIViewController {
         setupGridView()
         presenter.viewDidLoad()
     }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        presenter.viewWillAppear()
+    }
 
 }
 
@@ -71,11 +76,16 @@ extension FavoritesViewController: UICollectionViewDelegate, UICollectionViewDat
         let data = presenter.itemViewModel(at: indexPath.item)
         cell.configure(with: data)
         
-        cell.onStatusChange = { [weak self] newStatus in
-            self?.presenter.didChangeStatus(for: indexPath.item, to: newStatus)
+        cell.onStatusChange = { [weak self, weak cell] newStatus in
+            guard let self, let cell, let currentIndexPath = collectionView.indexPath(for: cell)
+            else { return }
+            self.presenter.didChangeStatus(for: indexPath.item, to: newStatus)
         }
-        cell.onFavoriteToggle = { [weak self] isFavorite in
-            self?.presenter.didToggleFavorite(for: indexPath.item, isFavorite: isFavorite)
+        
+        cell.onFavoriteToggle = {[weak self, weak cell] isFavorite in
+            guard let self, let cell, let currentIndexPath = collectionView.indexPath(for: cell)
+            else { return }
+            self.presenter.didToggleFavorite(for: indexPath.item, isFavorite: isFavorite)
         }
         
         return cell

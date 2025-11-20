@@ -2,10 +2,12 @@ import UIKit
 
 final class RootTabBarController: UITabBarController {
     
-    private let catalogFactory: CatalogModuleFactory
+    private let catalogFactory: CatalogModuleFactoryProtocol
+    private let favoritesFactory: FavoritesModuleFactoryProtocol
     
-    init(catalogFactory: CatalogModuleFactory) {
+    init(catalogFactory: CatalogModuleFactoryProtocol, favoritesFactory: FavoritesModuleFactoryProtocol) {
         self.catalogFactory = catalogFactory
+        self.favoritesFactory = favoritesFactory
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -41,7 +43,7 @@ final class RootTabBarController: UITabBarController {
     private func makeScreen(for tab: AppTab) -> UIViewController {
         switch tab {
         case .catalog: return catalogFactory.makeCatalog()
-        case .favorite: return UIViewController()
+        case .favorite: return favoritesFactory.makeFavorites()
         case .myBooks: return UIViewController()
         case .profile: return UIViewController()
         }
