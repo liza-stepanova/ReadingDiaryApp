@@ -1,9 +1,11 @@
 import Foundation
 import CoreData
 
-protocol FavoritesRepositoryProtocol {
+protocol LocalBooksRepositoryProtocol {
     
     func fetchFavorites(completion: @escaping (Result<[LocalBook], Error>) -> Void)
+    func fetchMyBooks(completion: @escaping (Result<[LocalBook], Error>) -> Void)
+    
     func upsert(_ book: LocalBook, completion: @escaping (Result<Void, Error>) -> Void)
     func updateStatus(bookId: String, status: ReadingStatus, completion: @escaping (Result<Void, Error>) -> Void)
     func toggleFavorite(bookId: String, isFavorite: Bool, completion: @escaping (Result<Void, Error>) -> Void)
@@ -18,7 +20,7 @@ enum FavoritesRepositoryError: Error {
     case notFound
 }
 
-final class CoreDataFavoritesRepository: FavoritesRepositoryProtocol {
+final class LocalBooksRepository: LocalBooksRepositoryProtocol {
 
     struct Dependencies {
         let stack: CoreDataStackProtocol
@@ -52,6 +54,32 @@ final class CoreDataFavoritesRepository: FavoritesRepositoryProtocol {
 
                 let items = try self.context.fetch(fetchRequest)
                 let models = items.map(LocalBook.init(entity:))
+                self.callbackQueue.async { completion(.success(models)) }
+            } catch {
+                self.callbackQueue.async { completion(.failure(error)) }
+            }
+        }
+    }
+    
+    func fetchMyBooks(completion: @escaping (Result<[LocalBook], Error>) -> Void) {
+        context.perform { [weak self] in
+            guard let self else { return }
+            do {
+                let request: NSFetchRequest<LocalBookEntity> = LocalBookEntity.fetchRequest()
+
+                let statuses: [Int16] = [
+                    Int16(ReadingStatus.reading.rawValue),
+                    Int16(ReadingStatus.done.rawValue)
+                ]
+                request.predicate = NSPredicate(format: "readingStatus IN %@", statuses)
+
+                let byStatus = NSSortDescriptor(key: #keyPath(LocalBookEntity.readingStatus), ascending: true)
+                let byDate   = NSSortDescriptor(key: #keyPath(LocalBookEntity.dateAdded), ascending: false)
+                request.sortDescriptors = [byStatus, byDate]
+                request.fetchBatchSize = 50
+
+                let entities = try self.context.fetch(request)
+                let models = entities.map(LocalBook.init(entity:))
                 self.callbackQueue.async { completion(.success(models)) }
             } catch {
                 self.callbackQueue.async { completion(.failure(error)) }
