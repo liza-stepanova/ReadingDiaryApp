@@ -3,12 +3,21 @@ import UIKit
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
+    private var appContainer: AppContainer!
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         guard let windowScene = (scene as? UIWindowScene) else { return }
         
+        appContainer = AppContainer()
+        
+        let catalogFactory = CatalogModuleFactory(
+            service: appContainer.openLibraryService,
+            imageLoader: appContainer.imageLoader,
+            localBooksRepository: appContainer.localBooksRepository
+        )
+        
         let window = UIWindow(windowScene: windowScene)
-        window.rootViewController = RootTabBarController(nibName: nil, bundle: nil)
+        window.rootViewController = RootTabBarController(catalogFactory: catalogFactory)
         window.makeKeyAndVisible()
         
         self.window = window

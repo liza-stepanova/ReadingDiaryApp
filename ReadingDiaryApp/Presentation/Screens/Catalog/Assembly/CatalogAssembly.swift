@@ -2,16 +2,12 @@ import UIKit
 
 enum CatalogAssembly {
     
-    static func build() -> UIViewController {
-        let session = URLSession.shared
-        let networkClient = NetworkClient(dependencies: .init(session: session))
-
-        let imageLoader = ImageLoader(dependencies: .init(client: networkClient))
-        let openLibrary = OpenLibraryService(dependencies: .init(client: networkClient))
-        let localBooksRepository: LocalBooksRepositoryProtocol = CoreDataLocalBooksRepository(dependencies: .init(stack: CoreDataStack()))
+    static func build(service: OpenLibraryServiceProtocol,
+                      imageLoader: ImageLoaderProtocol,
+                      localBooksRepository: LocalBooksRepositoryProtocol) -> UIViewController {
 
         let interactor = CatalogInteractor(dependencies: .init(
-            service: openLibrary,
+            service: service,
             imageLoader: imageLoader,
             localBooksRepository: localBooksRepository)
         )

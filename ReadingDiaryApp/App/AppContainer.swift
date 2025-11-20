@@ -4,16 +4,18 @@ final class AppContainer {
     
     let coreDataStack: CoreDataStackProtocol
     let urlSession: URLSession
-    let networkClient: NetworkClient
-    let imageLoader: ImageLoader
-    let openLibrary: OpenLibraryService
+    let networkClient: NetworkClientProtocol
+    let imageLoader: ImageLoaderProtocol
+    let openLibraryService: OpenLibraryServiceProtocol
+    let localBooksRepository: LocalBooksRepositoryProtocol
 
     init() {
         coreDataStack = CoreDataStack()
         urlSession = URLSession.shared
         networkClient = NetworkClient(dependencies: .init(session: urlSession))
         imageLoader = ImageLoader(dependencies: .init(client: networkClient))
-        openLibrary = OpenLibraryService(dependencies: .init(client: networkClient))
+        openLibraryService = OpenLibraryService(dependencies: .init(client: networkClient))
+        localBooksRepository = CoreDataLocalBooksRepository(dependencies: .init(stack: coreDataStack))
     }
     
 }

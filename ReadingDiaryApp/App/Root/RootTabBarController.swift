@@ -2,6 +2,17 @@ import UIKit
 
 final class RootTabBarController: UITabBarController {
     
+    private let catalogFactory: CatalogModuleFactory
+    
+    init(catalogFactory: CatalogModuleFactory) {
+        self.catalogFactory = catalogFactory
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         configureTabBarAppearance()
@@ -29,7 +40,7 @@ final class RootTabBarController: UITabBarController {
     
     private func makeScreen(for tab: AppTab) -> UIViewController {
         switch tab {
-        case .catalog: return CatalogAssembly.build()
+        case .catalog: return catalogFactory.makeCatalog()
         case .favorite: return UIViewController()
         case .myBooks: return UIViewController()
         case .profile: return UIViewController()
