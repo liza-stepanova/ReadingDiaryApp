@@ -28,13 +28,6 @@ final class CatalogViewController: UIViewController {
         return indicator
     }()
     
-    private let bottomSpinner: UIActivityIndicatorView = {
-        let indicator = UIActivityIndicatorView(style: .medium)
-        indicator.hidesWhenStopped = true
-        indicator.translatesAutoresizingMaskIntoConstraints = false
-        return indicator
-    }()
-    
     private let searchController: UISearchController = {
         let searchController = UISearchController()
         searchController.obscuresBackgroundDuringPresentation = false
@@ -62,7 +55,6 @@ final class CatalogViewController: UIViewController {
         setupNavigationBar()
         setupGridView()
         setupSpinner()
-        setupBottomSpinner()
         presenter.viewDidLoad()
     }
 
@@ -96,14 +88,6 @@ private extension CatalogViewController {
         NSLayoutConstraint.activate([
             spinner.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             spinner.centerYAnchor.constraint(equalTo: view.centerYAnchor),
-        ])
-    }
-    
-    func setupBottomSpinner() {
-        view.addSubview(bottomSpinner)
-        NSLayoutConstraint.activate([
-            bottomSpinner.centerXAnchor.constraint(equalTo: gridView.collectionView.centerXAnchor),
-            bottomSpinner.bottomAnchor.constraint(equalTo: gridView.collectionView.bottomAnchor, constant: -8)
         ])
     }
     
@@ -163,9 +147,9 @@ extension CatalogViewController: CatalogViewProtocol {
     
     func setBottomLoading(_ flag: Bool) {
         if flag {
-            bottomSpinner.startAnimating()
+            gridView.bottomSpinner.startAnimating()
         } else {
-            bottomSpinner.stopAnimating()
+            gridView.bottomSpinner.stopAnimating()
         }
     }
     

@@ -4,18 +4,27 @@ final class BookGridView: UIView {
     
     let collectionView: UICollectionView
     
+    let bottomSpinner: UIActivityIndicatorView = {
+        let indicator = UIActivityIndicatorView(style: .medium)
+        indicator.hidesWhenStopped = true
+        indicator.translatesAutoresizingMaskIntoConstraints = false
+        
+        return indicator
+    }()
+    
     init(config: BookGridLayoutConfig = .default) {
         let layout = BookGridLayoutFactory.makeLayout(config: config)
         self.collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         super.init(frame: .zero)
-        setup(collectionView: collectionView, config: config)
+        setupCollectionView(collectionView: collectionView, config: config)
+        setupBottomSpinner()
     }
     
     required init?(coder: NSCoder) {
         return nil
     }
     
-    private func setup(collectionView: UICollectionView, config: BookGridLayoutConfig) {
+    private func setupCollectionView(collectionView: UICollectionView, config: BookGridLayoutConfig) {
         translatesAutoresizingMaskIntoConstraints = false
         
         collectionView.translatesAutoresizingMaskIntoConstraints = false
@@ -31,6 +40,17 @@ final class BookGridView: UIView {
             collectionView.trailingAnchor.constraint(equalTo: trailingAnchor),
             collectionView.bottomAnchor.constraint(equalTo: bottomAnchor)
         ])
+    }
+    
+    private func setupBottomSpinner() {
+        addSubview(bottomSpinner)
+        NSLayoutConstraint.activate([
+            bottomSpinner.centerXAnchor.constraint(equalTo: centerXAnchor),
+            bottomSpinner.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor, constant: -UIConstants.BookGrid.Spacing.bottomPaddingSpinner)
+        ])
+
+        collectionView.contentInset.bottom = UIConstants.BookGrid.Spacing.bottomPadding
+        collectionView.verticalScrollIndicatorInsets.bottom = UIConstants.BookGrid.Spacing.bottomPadding
     }
     
 }

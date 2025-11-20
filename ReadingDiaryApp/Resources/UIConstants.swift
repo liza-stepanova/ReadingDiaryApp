@@ -22,6 +22,8 @@ enum UIConstants {
             static let itemHorizontal: CGFloat = 8
             static let itemVertical: CGFloat = 0
             static let row: CGFloat = 16
+            static let bottomPadding: CGFloat = 40
+            static let bottomPaddingSpinner: CGFloat = 10
             static let sectionInsets = NSDirectionalEdgeInsets(top: 8, leading: 8, bottom: 16, trailing: 8)
         }
     }
