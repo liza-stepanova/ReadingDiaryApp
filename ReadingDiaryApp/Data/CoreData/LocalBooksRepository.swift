@@ -4,7 +4,7 @@ import CoreData
 protocol LocalBooksRepositoryProtocol {
     
     func fetchFavorites(completion: @escaping (Result<[LocalBook], Error>) -> Void)
-    func fetchMyBooks(completion: @escaping (Result<[LocalBook], Error>) -> Void)
+    func fetchMyBooks(filter: MyBooksFilter, completion: @escaping (Result<[LocalBook], Error>) -> Void)
     
     func upsert(_ book: LocalBook, completion: @escaping (Result<Void, Error>) -> Void)
     func updateStatus(bookId: String, status: ReadingStatus, completion: @escaping (Result<Void, Error>) -> Void)
@@ -14,6 +14,12 @@ protocol LocalBooksRepositoryProtocol {
     func fetch(byIDs ids: [String], completion: @escaping (Result<[String: LocalBook], Error>) -> Void)
     func updateCoverData(bookId: String, data: Data?, completion: @escaping (Result<Void, Error>) -> Void)
     
+}
+
+enum MyBooksFilter {
+    case all
+    case reading
+    case done
 }
 
 enum FavoritesRepositoryError: Error {
@@ -61,21 +67,25 @@ final class CoreDataLocalBooksRepository: LocalBooksRepositoryProtocol {
         }
     }
     
-    func fetchMyBooks(completion: @escaping (Result<[LocalBook], Error>) -> Void) {
+    func fetchMyBooks(filter: MyBooksFilter, completion: @escaping (Result<[LocalBook], Error>) -> Void) {
         context.perform { [weak self] in
             guard let self else { return }
             do {
                 let request: NSFetchRequest<LocalBookEntity> = LocalBookEntity.fetchRequest()
 
-                let statuses: [Int16] = [
-                    Int16(ReadingStatus.reading.rawValue),
-                    Int16(ReadingStatus.done.rawValue)
-                ]
-                request.predicate = NSPredicate(format: "readingStatus IN %@", statuses)
+                let key = #keyPath(LocalBookEntity.readingStatus)
+                switch filter {
+                case .all:
+                    let values = [ReadingStatus.reading, .done].map { Int16($0.rawValue) }.map(NSNumber.init(value:))
+                    request.predicate = NSPredicate(format: "%K IN %@", key, values)
+                case .reading:
+                    request.predicate = NSPredicate(format: "%K == %d", key, Int16(ReadingStatus.reading.rawValue))
+                case .done:
+                    request.predicate = NSPredicate(format: "%K == %d", key, Int16(ReadingStatus.done.rawValue))}
 
-                let byStatus = NSSortDescriptor(key: #keyPath(LocalBookEntity.readingStatus), ascending: true)
-                let byDate   = NSSortDescriptor(key: #keyPath(LocalBookEntity.dateAdded), ascending: false)
-                request.sortDescriptors = [byStatus, byDate]
+                let byStatus = NSSortDescriptor(key: key, ascending: true)
+                let byDate = NSSortDescriptor(key: #keyPath(LocalBookEntity.dateAdded), ascending: false)
+                request.sortDescriptors = (filter == .all) ? [byStatus, byDate] : [byDate]
                 request.fetchBatchSize = 50
 
                 let entities = try self.context.fetch(request)
