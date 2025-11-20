@@ -62,8 +62,13 @@ final class CatalogPresenter: CatalogPresenterProtocol {
             view?.reloadItems(at: [index])
             return
         }
-        
         interactor.loadCover(for: viewModels[index].id, url: url)
+        
+        let thresholdIndex = max(0, viewModels.count - 5)
+        if index >= thresholdIndex {
+            interactor.loadNextPage()
+        }
+
     }
     
     func didEndDisplayingItem(at index: Int) {
@@ -111,22 +116,44 @@ final class CatalogPresenter: CatalogPresenterProtocol {
 
 extension CatalogPresenter: CatalogInteractorOutput {
     
-    func didLoadBooks(_ books: [Book], localState: [String: LocalBook]) {
-        self.books = books
-        self.viewModels = books.map { book in
-            let local = localState[book.id]
-            return BookCellViewModel(
-                id: book.id,
-                title: book.title,
-                author: book.author,
-                cover: nil,
-                status: local?.readingStatus ?? .none,
-                isFavorite: local?.isFavorite ?? false
-            )
+    func didLoadBooks(_ books: [Book], isReset: Bool, localState: [String: LocalBook]) {
+        if isReset {
+            self.books = books
+            self.viewModels = books.map { book in
+                let local = localState[book.id]
+                return BookCellViewModel(
+                    id: book.id,
+                    title: book.title,
+                    author: book.author,
+                    cover: nil,
+                    status: local?.readingStatus ?? .none,
+                    isFavorite: local?.isFavorite ?? false
+                )
+            }
+            view?.setLoading(false)
+            view?.showEmptyState(viewModels.isEmpty)
+            view?.reloadData()
+        } else {
+            let startIndex = self.books.count
+            self.books.append(contentsOf: books)
+                        
+            let newViewModels: [BookCellViewModel] = books.map { book in
+                let local = localState[book.id]
+                return BookCellViewModel(
+                    id: book.id,
+                    title: book.title,
+                    author: book.author,
+                    cover: nil,
+                    status: local?.readingStatus ?? .none,
+                    isFavorite: local?.isFavorite ?? false
+                )
+            }
+            self.viewModels.append(contentsOf: newViewModels)
+            let indexes = Array(startIndex..<self.viewModels.count)
+                        
+            view?.showEmptyState(viewModels.isEmpty)
+            view?.reloadData()
         }
-        view?.setLoading(false)
-        view?.showEmptyState(viewModels.isEmpty)
-        view?.reloadData()
     }
 
     func didFailSearch(_ error: NetworkError) {

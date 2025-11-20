@@ -3,18 +3,18 @@ import UIKit
 protocol CatalogInteractorInput: AnyObject {
     
     func searchBooks(query: String)
+    func loadNextPage()
     func cancelSearch()
     
     func loadCover(for id: String, url: URL)
     func cancelCoverLoad(for id: String)
     
     func updateBookState(book: Book, status: ReadingStatus, isFavorite: Bool, cover: UIImage?)
-    
 }
 
 protocol CatalogInteractorOutput: AnyObject {
     
-    func didLoadBooks(_ books: [Book], localState: [String: LocalBook])
+    func didLoadBooks(_ books: [Book], isReset: Bool, localState: [String: LocalBook])
     func didFailSearch(_ error: NetworkError)
     
     func didLoadCover(id: String, image: UIImage)
