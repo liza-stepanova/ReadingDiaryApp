@@ -20,7 +20,7 @@ enum FavoritesRepositoryError: Error {
     case notFound
 }
 
-final class LocalBooksRepository: LocalBooksRepositoryProtocol {
+final class CoreDataLocalBooksRepository: LocalBooksRepositoryProtocol {
 
     struct Dependencies {
         let stack: CoreDataStackProtocol
@@ -183,7 +183,11 @@ final class LocalBooksRepository: LocalBooksRepositoryProtocol {
         }
     }
 
-    private func findRequired(by bookId: String, in managedObjectContext: NSManagedObjectContext) throws -> LocalBookEntity {
+}
+
+private extension CoreDataLocalBooksRepository {
+    
+    func findRequired(by bookId: String, in managedObjectContext: NSManagedObjectContext) throws -> LocalBookEntity {
         let fetchRequest: NSFetchRequest<LocalBookEntity> = LocalBookEntity.fetchRequest()
         fetchRequest.fetchLimit = 1
         fetchRequest.predicate = NSPredicate(format: "bookId == %@", bookId)
@@ -194,7 +198,7 @@ final class LocalBooksRepository: LocalBooksRepositoryProtocol {
         return obj
     }
 
-    private func findOrInsert(by bookId: String, in managedObjectContext: NSManagedObjectContext) throws -> LocalBookEntity {
+    func findOrInsert(by bookId: String, in managedObjectContext: NSManagedObjectContext) throws -> LocalBookEntity {
         let fetchRequest: NSFetchRequest<LocalBookEntity> = LocalBookEntity.fetchRequest()
         fetchRequest.fetchLimit = 1
         fetchRequest.predicate = NSPredicate(format: "bookId == %@", bookId)
@@ -206,11 +210,11 @@ final class LocalBooksRepository: LocalBooksRepositoryProtocol {
         return obj
     }
 
-    private func saveIfNeeded(_ managedObjectContext: NSManagedObjectContext) throws {
+    func saveIfNeeded(_ managedObjectContext: NSManagedObjectContext) throws {
         if managedObjectContext.hasChanges { try managedObjectContext.save() }
     }
 
-    private func fill(entity: LocalBookEntity, with model: LocalBook) {
+    func fill(entity: LocalBookEntity, with model: LocalBook) {
         entity.bookId = model.id
         entity.title = model.title
         entity.author = model.author
