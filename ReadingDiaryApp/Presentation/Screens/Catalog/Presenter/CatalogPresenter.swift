@@ -12,6 +12,8 @@ final class CatalogPresenter: CatalogPresenterProtocol {
     private var books: [Book] = []
     private var viewModels: [BookCellViewModel] = []
     
+    private var isLoadingNextPage = false
+    
     var numberOfItems: Int { viewModels.count }
 
     init(dependencies: Dependencies) {
@@ -24,7 +26,7 @@ final class CatalogPresenter: CatalogPresenterProtocol {
 
     func viewDidLoad() {
         view?.reloadData()
-        view?.showEmptyState(true)
+        view?.showEmptyState(false)
     }
 
     func searchSubmitted(_ text: String) {
@@ -34,7 +36,7 @@ final class CatalogPresenter: CatalogPresenterProtocol {
             books = []
             viewModels = []
             view?.setLoading(false)
-            view?.showEmptyState(true)
+            view?.showEmptyState(false)
             view?.reloadData()
             return
         }
@@ -46,7 +48,12 @@ final class CatalogPresenter: CatalogPresenterProtocol {
 
     func cancelSearch() {
         interactor.cancelSearch()
+        cancelAllCoverLoads()
+        books = []
+        viewModels = []
         view?.setLoading(false)
+        view?.showEmptyState(false)
+        view?.reloadData()
     }
     
     func itemViewModel(at index: Int) -> BookCellViewModel {
@@ -65,7 +72,9 @@ final class CatalogPresenter: CatalogPresenterProtocol {
         interactor.loadCover(for: viewModels[index].id, url: url)
         
         let thresholdIndex = max(0, viewModels.count - 5)
-        if index >= thresholdIndex {
+        if index >= thresholdIndex, !isLoadingNextPage {
+            isLoadingNextPage = true
+            view?.setBottomLoading(true)
             interactor.loadNextPage()
         }
 
@@ -131,6 +140,7 @@ extension CatalogPresenter: CatalogInteractorOutput {
                 )
             }
             view?.setLoading(false)
+            view?.setBottomLoading(false)
             view?.showEmptyState(viewModels.isEmpty)
             view?.reloadData()
         } else {
@@ -149,8 +159,8 @@ extension CatalogPresenter: CatalogInteractorOutput {
                 )
             }
             self.viewModels.append(contentsOf: newViewModels)
-            let indexes = Array(startIndex..<self.viewModels.count)
-                        
+            isLoadingNextPage = false
+            view?.setBottomLoading(false)
             view?.showEmptyState(viewModels.isEmpty)
             view?.reloadData()
         }
@@ -158,6 +168,8 @@ extension CatalogPresenter: CatalogInteractorOutput {
 
     func didFailSearch(_ error: NetworkError) {
         view?.setLoading(false)
+        isLoadingNextPage = false
+        view?.setBottomLoading(false)
         view?.showError(message: error.localizedDescription)
     }
     

@@ -44,9 +44,12 @@ protocol CatalogPresenterProtocol: AnyObject {
 protocol CatalogViewProtocol: AnyObject {
     
     func setLoading(_ flag: Bool)
+    func setBottomLoading(_ flag: Bool)
+    
     func reloadData()
     func reloadItems(at indexes: [Int])
     func updateCover(at index: Int, image: UIImage?)
+    
     func showEmptyState(_ flag: Bool)
     func showError(message: String)
     
