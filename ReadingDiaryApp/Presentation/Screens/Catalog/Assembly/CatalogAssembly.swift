@@ -8,8 +8,13 @@ enum CatalogAssembly {
 
         let imageLoader = ImageLoader(dependencies: .init(client: networkClient))
         let openLibrary = OpenLibraryService(dependencies: .init(client: networkClient))
+        let localBooksRepository: LocalBooksRepositoryProtocol = CoreDataLocalBooksRepository(dependencies: .init(stack: CoreDataStack()))
 
-        let interactor = CatalogInteractor(dependencies: .init(service: openLibrary, imageLoader: imageLoader))
+        let interactor = CatalogInteractor(dependencies: .init(
+            service: openLibrary,
+            imageLoader: imageLoader,
+            localBooksRepository: localBooksRepository)
+        )
 
         let presenter = CatalogPresenter(dependencies: .init(interactor: interactor))
 

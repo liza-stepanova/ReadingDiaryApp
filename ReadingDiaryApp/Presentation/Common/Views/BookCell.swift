@@ -80,6 +80,9 @@ final class BookCell: UICollectionViewCell {
         bookImageView.image = nil
         bookTitleLabel.text = nil
         bookAuthorLabel.text = nil
+        
+        onStatusChange = nil
+        onFavoriteToggle = nil
     }
     
     func configure(with model: BookCellViewModel) {
@@ -92,7 +95,6 @@ final class BookCell: UICollectionViewCell {
             bookImageView.image = image
             coverSpinner.stopAnimating()
         } else {
-//            bookImageView.image = UIConstants.Images.coverPlaceholder
             coverSpinner.startAnimating()
         }
         

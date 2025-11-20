@@ -71,21 +71,20 @@ final class CatalogPresenter: CatalogPresenterProtocol {
         interactor.cancelCoverLoad(for: viewModels[index].id)
     }
     
-    func didToggleFavorite(at index: Int) {
+    func didToggleFavorite(at index: Int, to isFavorite: Bool) {
         guard index >= 0, index < viewModels.count else { return }
-                
+ 
         let book = books[index]
         var viewModel = viewModels[index]
-                
-        let newValue = !viewModel.isFavorite
-        viewModel.isFavorite = newValue
+        
+        viewModel.isFavorite = isFavorite
         viewModels[index] = viewModel
                 
         view?.reloadItems(at: [index])
         interactor.updateBookState(
             book: book,
             status: viewModel.status,
-            isFavorite: newValue
+            isFavorite: isFavorite
         )
     }
     

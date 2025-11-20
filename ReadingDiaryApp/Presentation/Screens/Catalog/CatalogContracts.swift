@@ -37,7 +37,7 @@ protocol CatalogPresenterProtocol: AnyObject {
     func willDisplayItem(at index: Int)
     func didEndDisplayingItem(at index: Int)
     
-    func didToggleFavorite(at index: Int)
+    func didToggleFavorite(at index: Int, to isFavorite: Bool)
     func didChangeStatus(at index: Int, to status: ReadingStatus)
 }
 
