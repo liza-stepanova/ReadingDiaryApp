@@ -77,13 +77,13 @@ extension FavoritesViewController: UICollectionViewDelegate, UICollectionViewDat
         cell.configure(with: data)
         
         cell.onStatusChange = { [weak self, weak cell] newStatus in
-            guard let self, let cell, let currentIndexPath = collectionView.indexPath(for: cell)
+            guard let self, let cell, let indexPath = collectionView.indexPath(for: cell)
             else { return }
             self.presenter.didChangeStatus(for: indexPath.item, to: newStatus)
         }
         
         cell.onFavoriteToggle = {[weak self, weak cell] isFavorite in
-            guard let self, let cell, let currentIndexPath = collectionView.indexPath(for: cell)
+            guard let self, let cell, let indexPath = collectionView.indexPath(for: cell)
             else { return }
             self.presenter.didToggleFavorite(for: indexPath.item, isFavorite: isFavorite)
         }

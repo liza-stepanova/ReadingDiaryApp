@@ -10,6 +10,14 @@ final class MyBooksViewController: UIViewController {
     
     private let gridView = BookGridView()
     
+    private let filterControl: UISegmentedControl = {
+        let control = UISegmentedControl(items: ["Все", "Читаю", "Прочитано"])
+        control.translatesAutoresizingMaskIntoConstraints = false
+        control.selectedSegmentIndex = 0
+        
+        return control
+    }()
+    
     private let emptyLabel: UILabel = {
         let label = UILabel()
         label.text = "У вас ещё нет книг"
@@ -33,6 +41,7 @@ final class MyBooksViewController: UIViewController {
         super.viewDidLoad()
         
         view.backgroundColor = .systemBackground
+        setupFilterControl()
         setupGridView()
         presenter.viewDidLoad()
     }
@@ -46,6 +55,17 @@ final class MyBooksViewController: UIViewController {
 
 private extension MyBooksViewController {
     
+    func setupFilterControl() {
+        view.addSubview(filterControl)
+        filterControl.addTarget(self, action: #selector(filterChanged(_:)), for: .valueChanged)
+                
+        NSLayoutConstraint.activate([
+            filterControl.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: UIConstants.Layout.Spacing.small),
+            filterControl.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: UIConstants.Layout.Inset.horizontal),
+            filterControl.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -UIConstants.Layout.Inset.horizontal)
+        ])
+    }
+    
     func setupGridView() {
         let collection = gridView.collectionView
         collection.delegate = self
@@ -54,11 +74,15 @@ private extension MyBooksViewController {
         view.addSubview(gridView)
         
         NSLayoutConstraint.activate([
-            gridView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            gridView.topAnchor.constraint(equalTo: filterControl.bottomAnchor, constant: UIConstants.Layout.Spacing.small),
             gridView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             gridView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             gridView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
         ])
+    }
+    
+    @objc func filterChanged(_ sender: UISegmentedControl) {
+        presenter.didSelectFilter(at: sender.selectedSegmentIndex)
     }
     
 }
@@ -77,13 +101,13 @@ extension MyBooksViewController: UICollectionViewDelegate, UICollectionViewDataS
         cell.configure(with: data)
         
         cell.onStatusChange = { [weak self, weak cell] newStatus in
-            guard let self, let cell, let currentIndexPath = collectionView.indexPath(for: cell)
+            guard let self, let cell, let indexPath = collectionView.indexPath(for: cell)
             else { return }
             self.presenter.didChangeStatus(for: indexPath.item, to: newStatus)
         }
         
         cell.onFavoriteToggle = {[weak self, weak cell] isFavorite in
-            guard let self, let cell, let currentIndexPath = collectionView.indexPath(for: cell)
+            guard let self, let cell, let indexPath = collectionView.indexPath(for: cell)
             else { return }
             self.presenter.didToggleFavorite(for: indexPath.item, isFavorite: isFavorite)
         }
@@ -118,6 +142,10 @@ extension MyBooksViewController: MyBooksViewProtocol {
         let alert = UIAlertController(title: "Ошибка", message: message, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "OK", style: .default))
         present(alert, animated: true)
+    }
+    
+    func setSelectedFilterIndex(_ index: Int) {
+        filterControl.selectedSegmentIndex = index
     }
 
 }

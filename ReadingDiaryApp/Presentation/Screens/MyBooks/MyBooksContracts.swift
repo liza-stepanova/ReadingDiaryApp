@@ -7,6 +7,7 @@ protocol MyBooksPresenterProtocol: AnyObject {
     func viewDidLoad()
     func viewWillAppear()
     
+    func didSelectFilter(at index: Int)
     func didChangeStatus(for index: Int, to status: ReadingStatus)
     func didToggleFavorite(for index: Int, isFavorite: Bool)
     
@@ -18,5 +19,6 @@ protocol MyBooksViewProtocol {
     func reloadItems(at indexes: [Int])
     func showEmptyState(_ flag: Bool)
     func showError(message: String)
+    func setSelectedFilterIndex(_ index: Int)
     
 }

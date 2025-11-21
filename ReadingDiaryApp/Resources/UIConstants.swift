@@ -11,6 +11,18 @@ enum UIConstants {
         static let placeholder = "Название или автор"
     }
     
+    enum Layout {
+        enum Inset {
+            static let horizontal: CGFloat = 16
+            static let vertical: CGFloat = 10
+        }
+
+        enum Spacing {
+            static let small: CGFloat = 8
+            static let large: CGFloat = 16
+        }
+    }
+    
     enum BookGrid {
         static let columns: Int = 2
         
@@ -23,7 +35,6 @@ enum UIConstants {
             static let itemVertical: CGFloat = 0
             static let row: CGFloat = 16
             static let bottomPadding: CGFloat = 40
-            static let bottomPaddingSpinner: CGFloat = 10
             static let sectionInsets = NSDirectionalEdgeInsets(top: 8, leading: 8, bottom: 16, trailing: 8)
         }
     }
