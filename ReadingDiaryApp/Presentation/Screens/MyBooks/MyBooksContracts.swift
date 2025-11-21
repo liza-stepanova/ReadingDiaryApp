@@ -1,7 +1,7 @@
 protocol MyBooksPresenterProtocol: AnyObject {
     
     func itemViewModel(at index: Int) -> BookCellViewModel
-    func setViewController(view: FavoritesViewProtocol)
+    func setViewController(_ view: MyBooksViewProtocol)
     
     var numberOfItems: Int { get }
     func viewDidLoad()
@@ -13,7 +13,7 @@ protocol MyBooksPresenterProtocol: AnyObject {
     
 }
 
-protocol MyBooksViewProtocol {
+protocol MyBooksViewProtocol: AnyObject {
     
     func reloadData()
     func reloadItems(at indexes: [Int])

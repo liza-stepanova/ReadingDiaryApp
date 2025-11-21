@@ -4,10 +4,14 @@ final class RootTabBarController: UITabBarController {
     
     private let catalogFactory: CatalogModuleFactoryProtocol
     private let favoritesFactory: FavoritesModuleFactoryProtocol
+    private let myBooksFactory: MyBooksModuleFactoryProtocol
     
-    init(catalogFactory: CatalogModuleFactoryProtocol, favoritesFactory: FavoritesModuleFactoryProtocol) {
+    init(catalogFactory: CatalogModuleFactoryProtocol,
+         favoritesFactory: FavoritesModuleFactoryProtocol,
+         myBooksFactory: MyBooksModuleFactoryProtocol) {
         self.catalogFactory = catalogFactory
         self.favoritesFactory = favoritesFactory
+        self.myBooksFactory = myBooksFactory
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -44,7 +48,7 @@ final class RootTabBarController: UITabBarController {
         switch tab {
         case .catalog: return catalogFactory.makeCatalog()
         case .favorite: return favoritesFactory.makeFavorites()
-        case .myBooks: return UIViewController()
+        case .myBooks: return myBooksFactory.makeMyBooks()
         case .profile: return UIViewController()
         }
     }

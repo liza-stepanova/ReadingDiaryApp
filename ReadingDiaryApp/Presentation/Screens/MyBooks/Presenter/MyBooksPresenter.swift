@@ -20,12 +20,16 @@ final class MyBooksPresenter: MyBooksPresenterProtocol {
         self.interactor = dependencies.interactor
     }
     
-    func setView(_ view: MyBooksViewProtocol) {
+    func setViewController(_ view: MyBooksViewProtocol) {
         self.view = view
     }
     
     func viewDidLoad() {
         view?.setSelectedFilterIndex(index(for: currentFilter))
+        interactor.fetchBooks(filter: currentFilter)
+    }
+    
+    func viewWillAppear() {
         interactor.fetchBooks(filter: currentFilter)
     }
     
