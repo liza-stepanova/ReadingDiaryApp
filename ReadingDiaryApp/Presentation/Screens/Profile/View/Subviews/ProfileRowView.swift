@@ -58,6 +58,16 @@ final class ProfileRowView: UIView {
         titleLabel.text = title
         valueLabel.text = value
     }
+    
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+            
+        if #available(iOS 13.0, *),
+           traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection) {
+            containerView.layer.borderColor = UIColor.primaryAccent.cgColor
+        }
+    }
+    
 }
 
 private extension ProfileRowView {
