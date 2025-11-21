@@ -14,6 +14,7 @@
 		7ACFB0812EC5FD290068CC0E /* Exceptions for "ReadingDiaryApp" folder in "ReadingDiaryApp" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				Presentation/Screens/MyBooks/Presenter/MyBooksPresenter.swift,
 				Resources/Info.plist,
 			);
 			target = 7ACFB06E2EC5FD270068CC0E /* ReadingDiaryApp */;

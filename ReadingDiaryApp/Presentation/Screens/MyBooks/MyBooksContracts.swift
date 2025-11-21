@@ -22,3 +22,19 @@ protocol MyBooksViewProtocol {
     func setSelectedFilterIndex(_ index: Int)
     
 }
+
+
+protocol MyBooksInteractorInput: AnyObject {
+    
+    func fetchBooks(filter: MyBooksFilter)
+    func updateBookStatus(bookId: String, status: ReadingStatus)
+    func toggleFavorite(bookId: String, isFavorite: Bool)
+    
+}
+
+protocol MyBooksInteractorOutput: AnyObject {
+    
+    func didLoadMyBooks(_ books: [LocalBook])
+    func didFailMyBooks(_ error: Error)
+    
+}
