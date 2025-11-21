@@ -53,6 +53,10 @@ enum UIConstants {
         
     }
     
+    enum NoteCard {
+        static let padding: CGFloat = 12
+    }
+    
     enum Font {
         static let h0: UIFont = .systemFont(ofSize: 20, weight: .semibold)
         static let h1: UIFont = .systemFont(ofSize: 18, weight: .bold)
@@ -66,7 +70,8 @@ enum UIConstants {
     enum Shadow {
         static let radius: CGFloat = 9
         static let opacity: Float = 0.12
-        static let offset: CGSize = CGSize(width: 0, height: -4)
+        static let offsetBookCover: CGSize = CGSize(width: 0, height: -4)
+        static let offset: CGSize = CGSize(width: 0, height: 4)
     }
     
 }

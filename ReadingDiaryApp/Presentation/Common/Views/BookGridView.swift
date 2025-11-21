@@ -31,6 +31,7 @@ final class BookGridView: UIView {
         collectionView.backgroundColor = .clear
         collectionView.alwaysBounceVertical = true
         collectionView.keyboardDismissMode = .onDrag
+        collectionView.clipsToBounds = false
         collectionView.register(BookCell.self, forCellWithReuseIdentifier: BookCell.identifier)
 
         addSubview(collectionView)

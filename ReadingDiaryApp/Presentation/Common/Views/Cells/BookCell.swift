@@ -77,7 +77,7 @@ final class BookCell: UICollectionViewCell {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        
+        setupShadow()
         setupLayout()
         setupActions()
     }
@@ -214,6 +214,13 @@ private extension BookCell {
         let name = currentIsFavorite ? "heart.fill" : "heart"
         favoriteButton.setImage(UIImage(systemName: name), for: .normal)
         favoriteButton.isSelected = currentIsFavorite
+    }
+    
+    func setupShadow() {
+        layer.shadowColor = UIColor.black.cgColor
+        layer.shadowOpacity = UIConstants.Shadow.opacity
+        layer.shadowRadius = UIConstants.Shadow.radius
+        layer.shadowOffset = UIConstants.Shadow.offsetBookCover
     }
     
 }

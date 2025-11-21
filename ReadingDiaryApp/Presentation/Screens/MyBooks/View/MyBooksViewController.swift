@@ -14,6 +14,7 @@ final class MyBooksViewController: UIViewController {
         let control = UISegmentedControl(items: ["Все", "Читаю", "Прочитано"])
         control.translatesAutoresizingMaskIntoConstraints = false
         control.selectedSegmentIndex = 0
+        control.backgroundColor = .clear
         
         return control
     }()
@@ -67,14 +68,13 @@ private extension MyBooksViewController {
     }
     
     func setupGridView() {
-        let collection = gridView.collectionView
-        collection.delegate = self
-        collection.dataSource = self
+        gridView.collectionView.delegate = self
+        gridView.collectionView.dataSource = self
         
         view.addSubview(gridView)
         
         NSLayoutConstraint.activate([
-            gridView.topAnchor.constraint(equalTo: filterControl.bottomAnchor, constant: UIConstants.Layout.Spacing.small),
+            gridView.topAnchor.constraint(equalTo: filterControl.bottomAnchor, constant: UIConstants.Layout.Spacing.large),
             gridView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             gridView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             gridView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
