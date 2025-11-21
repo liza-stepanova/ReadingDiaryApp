@@ -3,34 +3,17 @@ import UIKit
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
-    var themeService: ThemeServiceProtocol!
-    private var appContainer: AppContainer!
+    private var appCoordinator: AppCoordinator?
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         guard let windowScene = (scene as? UIWindowScene) else { return }
         
         let window = UIWindow(windowScene: windowScene)
-        let themeService = ThemeService(window: window)
-        self.themeService = themeService
-        
-        self.appContainer = AppContainer(themeService: themeService)
-        
-        let catalogFactory = CatalogModuleFactory(
-            service: appContainer.openLibraryService,
-            imageLoader: appContainer.imageLoader,
-            localBooksRepository: appContainer.localBooksRepository
-        )
-        let favoritesFactory = FavoritesModuleFactory(repository: appContainer.localBooksRepository)
-        let myBooksFactory = MyBooksModuleFactory(repository: appContainer.localBooksRepository, notesRepository: appContainer.notesRepository)
-        let profileFactory = ProfileModuleFactory(booksRepository: appContainer.localBooksRepository, themeService: themeService)
-        
-        window.rootViewController = RootTabBarController(catalogFactory: catalogFactory,
-                                                         favoritesFactory: favoritesFactory,
-                                                         myBooksFactory: myBooksFactory,
-                                                         profileFactory: profileFactory)
-        window.makeKeyAndVisible()
-        
         self.window = window
+                
+        let appCoordinator = AppCoordinator(window: window)
+        self.appCoordinator = appCoordinator
+        appCoordinator.start()
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {
