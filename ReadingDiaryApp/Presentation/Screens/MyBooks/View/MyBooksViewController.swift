@@ -14,7 +14,18 @@ final class MyBooksViewController: UIViewController {
         let control = UISegmentedControl(items: ["Все", "Читаю", "Прочитано"])
         control.translatesAutoresizingMaskIntoConstraints = false
         control.selectedSegmentIndex = 0
-        control.backgroundColor = .clear
+        control.selectedSegmentTintColor = .primaryAccent
+        
+        let normalAttributes: [NSAttributedString.Key: Any] = [
+            .foregroundColor: UIColor.black,
+            .font: UIConstants.Font.text1
+        ]
+        let selectedAttributes: [NSAttributedString.Key: Any] = [
+            .foregroundColor: UIColor.white,
+            .font: UIConstants.Font.text1
+        ]
+        control.setTitleTextAttributes(normalAttributes, for: .normal)
+        control.setTitleTextAttributes(selectedAttributes, for: .selected)
         
         return control
     }()
@@ -42,6 +53,8 @@ final class MyBooksViewController: UIViewController {
         super.viewDidLoad()
         
         view.backgroundColor = .systemBackground
+        navigationItem.backButtonDisplayMode = .minimal
+        
         setupFilterControl()
         setupGridView()
         presenter.viewDidLoad()
@@ -74,7 +87,7 @@ private extension MyBooksViewController {
         view.addSubview(gridView)
         
         NSLayoutConstraint.activate([
-            gridView.topAnchor.constraint(equalTo: filterControl.bottomAnchor, constant: UIConstants.Layout.Spacing.large),
+            gridView.topAnchor.constraint(equalTo: filterControl.bottomAnchor, constant: UIConstants.Layout.Spacing.small),
             gridView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             gridView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             gridView.bottomAnchor.constraint(equalTo: view.bottomAnchor),

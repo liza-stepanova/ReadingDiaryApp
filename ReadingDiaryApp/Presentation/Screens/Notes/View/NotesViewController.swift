@@ -32,12 +32,23 @@ final class NotesViewController: UIViewController {
         setupTableView()
         presenter.viewDidLoad()
     }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        presenter.viewWillAppear()
+    }
 }
 
 private extension NotesViewController {
     
     func setupNavigationBar() {
-        // добавить запись
+        navigationItem.rightBarButtonItem = UIBarButtonItem(
+            barButtonSystemItem: .add,
+            target: self,
+            action: #selector(addButtonTapped)
+        )
+        navigationController?.navigationBar.tintColor = .primaryAccent
+        navigationItem.backButtonTitle = ""
     }
     
     func setupTableView() {
@@ -66,6 +77,10 @@ private extension NotesViewController {
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
+    }
+    
+    @objc func addButtonTapped() {
+        presenter.didTapAdd()
     }
     
 }
