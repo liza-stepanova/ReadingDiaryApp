@@ -35,6 +35,10 @@ final class NotesPresenter: NotesPresenterProtocol {
     func viewDidLoad() {
         interactor.fetchNotes()
     }
+    
+    func viewWillAppear() {
+        interactor.fetchNotes()
+    }
 
     func noteViewModel(at index: Int) -> NoteCellViewModel {
         viewModels[index]

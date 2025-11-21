@@ -6,6 +6,7 @@ protocol NotesPresenterProtocol: AnyObject {
 
     func setViewController(_ view: NotesViewProtocol)
     func viewDidLoad()
+    func viewWillAppear()
 
     func noteViewModel(at index: Int) -> NoteCellViewModel
     func didMoveNote(from sourceIndex: Int, to destinationIndex: Int)

@@ -103,6 +103,12 @@ final class BookCell: UICollectionViewCell {
         currentIsFavorite = model.isFavorite
         notesButton.isHidden = !model.hasNotes
         
+        if model.status == .reading || model.status == .done {
+            notesButton.isHidden = false
+        } else {
+            notesButton.isHidden = true
+        }
+        
         if let image = model.cover {
             bookImageView.image = image
             coverSpinner.stopAnimating()

@@ -32,6 +32,11 @@ final class NotesViewController: UIViewController {
         setupTableView()
         presenter.viewDidLoad()
     }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        presenter.viewWillAppear()
+    }
 }
 
 private extension NotesViewController {

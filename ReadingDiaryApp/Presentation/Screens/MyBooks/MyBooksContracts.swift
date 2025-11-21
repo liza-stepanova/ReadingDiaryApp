@@ -24,7 +24,6 @@ protocol MyBooksViewProtocol: AnyObject {
     
 }
 
-
 protocol MyBooksInteractorInput: AnyObject {
     
     func fetchBooks(filter: MyBooksFilter)
@@ -39,5 +38,11 @@ protocol MyBooksInteractorOutput: AnyObject {
     func didLoadMyBooks(_ books: [LocalBook])
     func didFailMyBooks(_ error: Error)
     func didUpdateNotesExist(bookId: String, hasNotes: Bool)
+    
+}
+
+protocol MyBooksRouterInput: AnyObject {
+    
+    func showNotes(for book: LocalBook)
     
 }
