@@ -78,6 +78,8 @@ final class CoreDataLocalBooksRepository: LocalBooksRepositoryProtocol {
             do {
                 let entity = try self.findOrInsert(by: book.id, in: self.context)
                 self.fill(entity: entity, with: book)
+                self.applyDeletionRuleIfNeeded(for: entity, in: self.context)
+                
                 try self.saveIfNeeded(self.context)
                 self.callbackQueue.async { completion(.success(())) }
             } catch {
@@ -92,6 +94,8 @@ final class CoreDataLocalBooksRepository: LocalBooksRepositoryProtocol {
             do {
                 let entity = try self.findRequired(by: bookId, in: self.context)
                 entity.readingStatus = Int16(status.rawValue)
+                self.applyDeletionRuleIfNeeded(for: entity, in: self.context)
+                
                 if entity.bookId == nil { entity.bookId = bookId }
                 try self.saveIfNeeded(self.context)
                 self.callbackQueue.async { completion(.success(())) }
@@ -107,6 +111,8 @@ final class CoreDataLocalBooksRepository: LocalBooksRepositoryProtocol {
             do {
                 let entity = try self.findOrInsert(by: bookId, in: self.context)
                 entity.isFavorite = isFavorite
+                self.applyDeletionRuleIfNeeded(for: entity, in: self.context)
+                
                 if entity.bookId == nil { entity.bookId = bookId }
                 if entity.dateAdded == nil { entity.dateAdded = Date() }
                 try self.saveIfNeeded(self.context)
@@ -211,6 +217,16 @@ private extension CoreDataLocalBooksRepository {
         entity.readingStatus = Int16(model.readingStatus.rawValue)
         entity.isFavorite = model.isFavorite
         entity.dateAdded = model.dateAdded
+    }
+    
+    func applyDeletionRuleIfNeeded(for entity: LocalBookEntity, in context: NSManagedObjectContext) {
+        let statusRaw = Int(entity.readingStatus)
+        let status = ReadingStatus(rawValue: statusRaw) ?? .none
+        let isFavorite = entity.isFavorite
+
+        if status == .none && !isFavorite {
+            context.delete(entity)
+        }
     }
     
 }
