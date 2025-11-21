@@ -11,6 +11,7 @@ protocol NotesPresenterProtocol: AnyObject {
     func noteViewModel(at index: Int) -> NoteCellViewModel
     func didMoveNote(from sourceIndex: Int, to destinationIndex: Int)
     func didTapAdd()
+    func didSelectNote(at index: Int) 
     
 }
 
@@ -40,5 +41,6 @@ protocol NotesInteractorOutput: AnyObject {
 protocol NotesRouterInput: AnyObject {
     
     func showAddNote(for bookId: String, title: String?)
+    func showEditNote(_ note: BookNote, title: String?)
     
 }

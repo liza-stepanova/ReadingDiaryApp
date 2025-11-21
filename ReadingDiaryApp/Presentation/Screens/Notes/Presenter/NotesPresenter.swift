@@ -63,6 +63,13 @@ final class NotesPresenter: NotesPresenterProtocol {
     func didTapAdd() {
         router.showAddNote(for: bookId, title: bookTitle)
     }
+    
+    func didSelectNote(at index: Int) {
+        guard index >= 0, index < notes.count else { return }
+        let note = notes[index]
+        router.showEditNote(note, title: nil)
+    }
+    
 }
 
 extension NotesPresenter: NotesInteractorOutput {

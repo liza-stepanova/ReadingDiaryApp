@@ -10,6 +10,16 @@ final class NotesViewController: UIViewController {
     private let presenter: NotesPresenterProtocol
     private let tableView = UITableView(frame: .zero, style: .plain)
     
+    private let emptyLabel: UILabel = {
+        let label = UILabel()
+        label.text = "У вас ещё нет записей"
+        label.textAlignment = .center
+        label.textColor = .secondaryAccent
+        label.numberOfLines = 0
+        
+        return label
+    }()
+    
     private let bookTitle: String?
     
     init(dependencies: Dependencies) {
@@ -92,7 +102,7 @@ extension NotesViewController: NotesViewProtocol {
     }
 
     func showEmptyState(_ flag: Bool) {
-        // label
+        tableView.backgroundView = flag ? emptyLabel : nil
     }
 
     func showError(message: String) {
@@ -127,6 +137,11 @@ extension NotesViewController: UITableViewDelegate, UITableViewDataSource {
         presenter.didMoveNote(from: sourceIndexPath.row, to: destinationIndexPath.row)
     }
     
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        presenter.didSelectNote(at: indexPath.row)
+        tableView.deselectRow(at: indexPath, animated: true)
+    }
+    
 }
 
 extension NotesViewController: UITableViewDragDelegate {
@@ -138,33 +153,5 @@ extension NotesViewController: UITableViewDragDelegate {
         dragItem.localObject = model
 
         return [dragItem]
-    }
-}
-
-
-enum NotesMocks {
-    static func sampleNotes() -> [NoteCellViewModel] {
-        return [
-            NoteCellViewModel(
-                id: "1",
-                text: "Очень понравился образ главного героя. Есть пара интересных цитат, надо потом выписать для рецензии.",
-                dateString: "12.11.2025"
-            ),
-            NoteCellViewModel(
-                id: "2",
-                text: "Сюжет провисает в середине — главы 7–9 можно было бы сократить. Но концовка вытягивает.",
-                dateString: "13.11.2025"
-            ),
-            NoteCellViewModel(
-                id: "3",
-                text: "Цитата: «Мы ответственны за тех, кого приручили» — отлично подойдёт для поста в читательский дневник.",
-                dateString: "14.11.2025"
-            ),
-            NoteCellViewModel(
-                id: "4",
-                text: "Интересное сравнение с предыдущей книгой автора: здесь повествование от первого лица, читается живее.",
-                dateString: "15.11.2025"
-            )
-        ]
     }
 }
