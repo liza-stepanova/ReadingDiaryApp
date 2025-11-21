@@ -47,6 +47,8 @@ private extension NotesViewController {
             target: self,
             action: #selector(addButtonTapped)
         )
+        navigationController?.navigationBar.tintColor = .primaryAccent
+        navigationItem.backButtonTitle = ""
     }
     
     func setupTableView() {

@@ -42,11 +42,19 @@ final class NoteEditorViewController: UIViewController {
 private extension NoteEditorViewController {
     
     func setupNavBar() {
-        navigationItem.rightBarButtonItem = UIBarButtonItem(
-            barButtonSystemItem: .save,
+        let saveItem = UIBarButtonItem(
+            title: "Сохранить",
+            style: .plain,
             target: self,
             action: #selector(saveTapped)
         )
+
+        let boldFont = UIConstants.Font.h2
+        saveItem.setTitleTextAttributes([.font: boldFont], for: .normal)
+        saveItem.setTitleTextAttributes([.font: boldFont], for: .highlighted)
+        saveItem.tintColor = .primaryAccent
+        navigationItem.rightBarButtonItem = saveItem
+        navigationItem.backButtonDisplayMode = .minimal
     }
 
     func setupTextView() {
