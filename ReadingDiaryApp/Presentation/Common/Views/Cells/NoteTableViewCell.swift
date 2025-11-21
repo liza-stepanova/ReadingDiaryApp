@@ -9,7 +9,7 @@ final class NoteTableViewCell: UITableViewCell {
         view.translatesAutoresizingMaskIntoConstraints = false
         view.backgroundColor = .clear
            
-        view.layer.cornerRadius = 10
+        view.layer.cornerRadius = UIConstants.NoteCard.cornerRadius
         view.layer.masksToBounds = false
         view.layer.shadowColor = UIColor.primaryAccent.cgColor
         view.layer.shadowOpacity = UIConstants.Shadow.opacity
@@ -25,8 +25,8 @@ final class NoteTableViewCell: UITableViewCell {
         view.backgroundColor = .systemBackground
         
         view.layer.borderColor = UIColor.primaryAccent.cgColor
-        view.layer.borderWidth = 1
-        view.layer.cornerRadius = 10
+        view.layer.borderWidth = UIConstants.NoteCard.borderWidth
+        view.layer.cornerRadius = UIConstants.NoteCard.cornerRadius
         view.layer.masksToBounds = true
         
         return view

@@ -9,8 +9,9 @@ final class AppContainer {
     let openLibraryService: OpenLibraryServiceProtocol
     let localBooksRepository: LocalBooksRepositoryProtocol
     let notesRepository: NotesRepositoryProtocol
+    let themeService: ThemeServiceProtocol
 
-    init() {
+    init(themeService: ThemeServiceProtocol) {
         coreDataStack = CoreDataStack()
         urlSession = URLSession.shared
         networkClient = NetworkClient(dependencies: .init(session: urlSession))
@@ -18,6 +19,7 @@ final class AppContainer {
         openLibraryService = OpenLibraryService(dependencies: .init(client: networkClient))
         localBooksRepository = CoreDataLocalBooksRepository(dependencies: .init(stack: coreDataStack))
         notesRepository = CoreDataNotesRepository(dependencies: .init(stack: coreDataStack))
+        self.themeService = themeService
     }
     
 }

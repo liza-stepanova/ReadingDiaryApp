@@ -23,6 +23,12 @@ enum UIConstants {
         }
     }
     
+    enum Profile {
+        static let avatarSize: CGFloat = 64
+        static let rowCornerRadius: CGFloat = 10
+        static let rowBorderWidth: CGFloat = 1
+    }
+    
     enum BookGrid {
         static let columns: Int = 2
         
@@ -55,6 +61,8 @@ enum UIConstants {
     
     enum NoteCard {
         static let padding: CGFloat = 12
+        static let cornerRadius: CGFloat = 10
+        static let borderWidth: CGFloat = 1
     }
     
     enum Font {

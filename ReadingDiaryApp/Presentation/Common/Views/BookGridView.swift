@@ -21,7 +21,7 @@ final class BookGridView: UIView {
     }
     
     required init?(coder: NSCoder) {
-        return nil
+        fatalError("init(coder:) has not been implemented")
     }
     
     private func setupCollectionView(collectionView: UICollectionView, config: BookGridLayoutConfig) {

@@ -3,12 +3,17 @@ import UIKit
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
+    var themeService: ThemeServiceProtocol!
     private var appContainer: AppContainer!
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         guard let windowScene = (scene as? UIWindowScene) else { return }
         
-        appContainer = AppContainer()
+        let window = UIWindow(windowScene: windowScene)
+        let themeService = ThemeService(window: window)
+        self.themeService = themeService
+        
+        self.appContainer = AppContainer(themeService: themeService)
         
         let catalogFactory = CatalogModuleFactory(
             service: appContainer.openLibraryService,
@@ -17,16 +22,12 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         )
         let favoritesFactory = FavoritesModuleFactory(repository: appContainer.localBooksRepository)
         let myBooksFactory = MyBooksModuleFactory(repository: appContainer.localBooksRepository, notesRepository: appContainer.notesRepository)
+        let profileFactory = ProfileModuleFactory(booksRepository: appContainer.localBooksRepository, themeService: themeService)
         
-        let window = UIWindow(windowScene: windowScene)
-//        
-//        let notesVC = NotesViewController(bookTitle: "Мастер и Маргарита")
-//        let nav = UINavigationController(rootViewController: notesVC)
-//        window.rootViewController = nav
-//        
         window.rootViewController = RootTabBarController(catalogFactory: catalogFactory,
                                                          favoritesFactory: favoritesFactory,
-                                                         myBooksFactory: myBooksFactory)
+                                                         myBooksFactory: myBooksFactory,
+                                                         profileFactory: profileFactory)
         window.makeKeyAndVisible()
         
         self.window = window
