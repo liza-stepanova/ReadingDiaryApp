@@ -17,7 +17,7 @@ final class MyBooksViewController: UIViewController {
         control.selectedSegmentTintColor = .primaryAccent
         
         let normalAttributes: [NSAttributedString.Key: Any] = [
-            .foregroundColor: UIColor.black,
+            .foregroundColor: UIColor.defaultText,
             .font: UIConstants.Font.text1
         ]
         let selectedAttributes: [NSAttributedString.Key: Any] = [
