@@ -4,10 +4,12 @@ final class MyBooksPresenter: MyBooksPresenterProtocol {
     
     struct Dependencies {
         let interactor: MyBooksInteractorInput
+        let router: MyBooksRouterInput
     }
     
     private weak var view: MyBooksViewProtocol?
     private let interactor: MyBooksInteractorInput
+    private let router: MyBooksRouterInput
     
     private var books: [LocalBook] = []
     private var viewModels: [BookCellViewModel] = []
@@ -18,6 +20,7 @@ final class MyBooksPresenter: MyBooksPresenterProtocol {
     
     init(dependencies: Dependencies) {
         self.interactor = dependencies.interactor
+        self.router = dependencies.router
     }
     
     func setViewController(_ view: MyBooksViewProtocol) {
@@ -90,7 +93,7 @@ final class MyBooksPresenter: MyBooksPresenterProtocol {
     func didTapNotes(for index: Int) {
         guard index >= 0, index < books.count else { return }
         let book = books[index]
-        // TODO: router
+        router.showNotes(for: book)
     }
 }
 

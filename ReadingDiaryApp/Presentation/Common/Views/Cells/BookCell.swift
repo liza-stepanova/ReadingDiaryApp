@@ -77,7 +77,7 @@ final class BookCell: UICollectionViewCell {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        
+        setupShadow()
         setupLayout()
         setupActions()
     }
@@ -102,6 +102,12 @@ final class BookCell: UICollectionViewCell {
         currentStatus = model.status
         currentIsFavorite = model.isFavorite
         notesButton.isHidden = !model.hasNotes
+        
+        if model.status == .reading || model.status == .done {
+            notesButton.isHidden = false
+        } else {
+            notesButton.isHidden = true
+        }
         
         if let image = model.cover {
             bookImageView.image = image
@@ -214,6 +220,13 @@ private extension BookCell {
         let name = currentIsFavorite ? "heart.fill" : "heart"
         favoriteButton.setImage(UIImage(systemName: name), for: .normal)
         favoriteButton.isSelected = currentIsFavorite
+    }
+    
+    func setupShadow() {
+        layer.shadowColor = UIColor.black.cgColor
+        layer.shadowOpacity = UIConstants.Shadow.opacity
+        layer.shadowRadius = UIConstants.Shadow.radius
+        layer.shadowOffset = UIConstants.Shadow.offsetBookCover
     }
     
 }

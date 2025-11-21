@@ -76,7 +76,7 @@ private extension CatalogViewController {
         view.addSubview(gridView)
         
         NSLayoutConstraint.activate([
-            gridView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            gridView.topAnchor.constraint(equalTo: view.topAnchor, constant: UIConstants.Layout.Inset.vertical),
             gridView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             gridView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             gridView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
