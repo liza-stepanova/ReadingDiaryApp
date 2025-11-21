@@ -9,6 +9,7 @@ protocol NotesPresenterProtocol: AnyObject {
 
     func noteViewModel(at index: Int) -> NoteCellViewModel
     func didMoveNote(from sourceIndex: Int, to destinationIndex: Int)
+    func didTapAdd()
     
 }
 
@@ -32,5 +33,11 @@ protocol NotesInteractorOutput: AnyObject {
     func didLoadNotes(_ notes: [BookNote])
     func didFailLoadNotes(_ error: Error)
     func didFailUpdateOrder(_ error: Error)
+    
+}
+
+protocol NotesRouterInput: AnyObject {
+    
+    func showAddNote(for bookId: String, title: String?)
     
 }

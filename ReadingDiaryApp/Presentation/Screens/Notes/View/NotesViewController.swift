@@ -37,7 +37,11 @@ final class NotesViewController: UIViewController {
 private extension NotesViewController {
     
     func setupNavigationBar() {
-        // добавить запись
+        navigationItem.rightBarButtonItem = UIBarButtonItem(
+            barButtonSystemItem: .add,
+            target: self,
+            action: #selector(addButtonTapped)
+        )
     }
     
     func setupTableView() {
@@ -66,6 +70,10 @@ private extension NotesViewController {
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
+    }
+    
+    @objc func addButtonTapped() {
+        presenter.didTapAdd()
     }
     
 }

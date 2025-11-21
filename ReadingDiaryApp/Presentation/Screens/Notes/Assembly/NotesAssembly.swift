@@ -6,7 +6,11 @@ enum NotesAssembly {
         let interactor = NotesInteractor(
             dependencies: .init(repository: repository, bookId: bookId)
         )
-        let presenter = NotesPresenter(dependencies: .init(interactor: interactor))
+        let router = NotesRouter(dependencies: .init(notesRepository: repository))
+        let presenter = NotesPresenter(dependencies: .init(interactor: interactor,
+                                                           router: router,
+                                                           bookId: bookId,
+                                                           bookTitle: bookTitle))
         let view = NotesViewController(dependencies: .init(presenter: presenter,bookTitle: bookTitle))
         interactor.output = presenter
         presenter.setViewController(view)

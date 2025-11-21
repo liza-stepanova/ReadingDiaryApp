@@ -4,10 +4,17 @@ final class NotesPresenter: NotesPresenterProtocol {
 
     struct Dependencies {
         let interactor: NotesInteractorInput
+        let router: NotesRouterInput
+        let bookId: String
+        let bookTitle: String?
     }
 
     private weak var view: NotesViewProtocol?
     private let interactor: NotesInteractorInput
+    private let router: NotesRouterInput
+    
+    private let bookId: String
+    private let bookTitle: String?
 
     private var notes: [BookNote] = []
     private var viewModels: [NoteCellViewModel] = []
@@ -16,6 +23,9 @@ final class NotesPresenter: NotesPresenterProtocol {
 
     init(dependencies: Dependencies) {
         self.interactor = dependencies.interactor
+        self.router = dependencies.router
+        self.bookId = dependencies.bookId
+        self.bookTitle = dependencies.bookTitle
     }
 
     func setViewController(_ view: NotesViewProtocol) {
@@ -44,6 +54,10 @@ final class NotesPresenter: NotesPresenterProtocol {
 
         let orderedIds = notes.map { $0.id }
         interactor.updateOrder(noteIdsInOrder: orderedIds)
+    }
+    
+    func didTapAdd() {
+        router.showAddNote(for: bookId, title: bookTitle)
     }
 }
 
