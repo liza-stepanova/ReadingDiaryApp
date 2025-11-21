@@ -2,14 +2,19 @@ import UIKit
 
 final class NotesViewController: UIViewController {
     
-    private let tableView = UITableView(frame: .zero, style: .plain)
+    struct Dependencies {
+        let presenter: NotesPresenterProtocol
+        let bookTitle: String?
+    }
     
-    private var notes: [NoteCellViewModel] = NotesMocks.sampleNotes()
+    private let presenter: NotesPresenterProtocol
+    private let tableView = UITableView(frame: .zero, style: .plain)
     
     private let bookTitle: String?
     
-    init(bookTitle: String? = nil) {
-        self.bookTitle = bookTitle
+    init(dependencies: Dependencies) {
+        self.presenter = dependencies.presenter
+        self.bookTitle = dependencies.bookTitle
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -25,6 +30,7 @@ final class NotesViewController: UIViewController {
             
         setupNavigationBar()
         setupTableView()
+        presenter.viewDidLoad()
     }
 }
 
@@ -46,7 +52,6 @@ private extension NotesViewController {
         
         tableView.dragInteractionEnabled = true
         tableView.dragDelegate = self
-//        tableView.dropDelegate = self
             
         tableView.register(
             NoteTableViewCell.self,
@@ -65,17 +70,35 @@ private extension NotesViewController {
     
 }
 
+extension NotesViewController: NotesViewProtocol {
+
+    func reloadData() {
+        tableView.reloadData()
+    }
+
+    func showEmptyState(_ flag: Bool) {
+        // label
+    }
+
+    func showError(message: String) {
+        let alert = UIAlertController(title: "Ошибка", message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        present(alert, animated: true)
+    }
+}
+
+
 extension NotesViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        notes.count
+        presenter.numberOfNotes
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: NoteTableViewCell.identifier, for: indexPath) as? NoteTableViewCell
         else { return UITableViewCell() }
                 
-        let model = notes[indexPath.row]
+        let model = presenter.noteViewModel(at: indexPath.row)
         cell.configure(with: model)
         
         return cell
@@ -86,55 +109,20 @@ extension NotesViewController: UITableViewDelegate, UITableViewDataSource {
     }
 
     func tableView(_ tableView: UITableView, moveRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
-        let moved = notes.remove(at: sourceIndexPath.row)
-        notes.insert(moved, at: destinationIndexPath.row)
+        presenter.didMoveNote(from: sourceIndexPath.row, to: destinationIndexPath.row)
     }
     
 }
 
-extension NotesViewController: UITableViewDragDelegate, UITableViewDropDelegate {
+extension NotesViewController: UITableViewDragDelegate {
 
     func tableView(_ tableView: UITableView, itemsForBeginning session: UIDragSession, at indexPath: IndexPath) -> [UIDragItem] {
-        let note = notes[indexPath.row]
-        let itemProvider = NSItemProvider(object: note.text as NSString)
-
+        let model = presenter.noteViewModel(at: indexPath.row)
+        let itemProvider = NSItemProvider(object: model.text as NSString)
         let dragItem = UIDragItem(itemProvider: itemProvider)
-        dragItem.localObject = note
+        dragItem.localObject = model
 
         return [dragItem]
-    }
-
-    func tableView(_ tableView: UITableView, canHandle session: UIDropSession) -> Bool {
-        return session.localDragSession != nil
-    }
-
-    func tableView(_ tableView: UITableView, dropSessionDidUpdate session: UIDropSession, withDestinationIndexPath destinationIndexPath: IndexPath?) -> UITableViewDropProposal {
-        if tableView.hasActiveDrag {
-            return UITableViewDropProposal(operation: .move, intent: .insertAtDestinationIndexPath)
-        } else {
-            return UITableViewDropProposal(operation: .forbidden)
-        }
-    }
-
-    func tableView(_ tableView: UITableView, performDropWith coordinator: UITableViewDropCoordinator) {
-        guard let destinationIndexPath = coordinator.destinationIndexPath else {
-            return
-        }
-
-        for item in coordinator.items {
-            if let sourceIndexPath = item.sourceIndexPath,
-               let note = item.dragItem.localObject as? NoteCellViewModel {
-
-                tableView.performBatchUpdates({
-                    notes.remove(at: sourceIndexPath.row)
-                    notes.insert(note, at: destinationIndexPath.row)
-
-                    tableView.moveRow(at: sourceIndexPath, to: destinationIndexPath)
-                }, completion: nil)
-
-                coordinator.drop(item.dragItem, toRowAt: destinationIndexPath)
-            }
-        }
     }
 }
 
