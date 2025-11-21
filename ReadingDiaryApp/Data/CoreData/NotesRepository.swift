@@ -206,6 +206,21 @@ final class CoreDataNotesRepository: NotesRepositoryProtocol {
         }
     }
     
+    func hasNotes(for bookId: String, completion: @escaping (Result<Bool, Error>) -> Void) {
+        context.perform { [weak self] in
+            guard let self else { return }
+            do {
+                let request: NSFetchRequest<BookNoteEntity> = BookNoteEntity.fetchRequest()
+                request.predicate = NSPredicate(format: "book.bookId == %@", bookId)
+                let count = try self.context.count(for: request)
+                let hasAny = count > 0
+                self.callbackQueue.async { completion(.success(hasAny)) }
+            } catch {
+                self.callbackQueue.async { completion(.failure(error)) }
+            }
+        }
+    }
+    
 }
 
 private extension CoreDataNotesRepository {

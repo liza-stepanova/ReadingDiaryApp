@@ -1,18 +1,38 @@
 import UIKit
 
-final class FavoritesViewController: UIViewController {
+final class MyBooksViewController: UIViewController {
     
     struct Dependencies {
-        let presenter: FavoritesPresenterProtocol
+        let presenter: MyBooksPresenterProtocol
     }
     
-    private let presenter: FavoritesPresenterProtocol
+    private let presenter: MyBooksPresenterProtocol
     
     private let gridView = BookGridView()
     
+    private let filterControl: UISegmentedControl = {
+        let control = UISegmentedControl(items: ["Все", "Читаю", "Прочитано"])
+        control.translatesAutoresizingMaskIntoConstraints = false
+        control.selectedSegmentIndex = 0
+        control.selectedSegmentTintColor = .primaryAccent
+        
+        let normalAttributes: [NSAttributedString.Key: Any] = [
+            .foregroundColor: UIColor.black,
+            .font: UIConstants.Font.text1
+        ]
+        let selectedAttributes: [NSAttributedString.Key: Any] = [
+            .foregroundColor: UIColor.white,
+            .font: UIConstants.Font.text1
+        ]
+        control.setTitleTextAttributes(normalAttributes, for: .normal)
+        control.setTitleTextAttributes(selectedAttributes, for: .selected)
+        
+        return control
+    }()
+    
     private let emptyLabel: UILabel = {
         let label = UILabel()
-        label.text = "У вас ещё нет любимых книг"
+        label.text = "У вас ещё нет книг"
         label.textAlignment = .center
         label.textColor = .secondaryAccent
         label.numberOfLines = 0
@@ -33,6 +53,9 @@ final class FavoritesViewController: UIViewController {
         super.viewDidLoad()
         
         view.backgroundColor = .systemBackground
+        navigationItem.backButtonDisplayMode = .minimal
+        
+        setupFilterControl()
         setupGridView()
         presenter.viewDidLoad()
     }
@@ -44,26 +67,40 @@ final class FavoritesViewController: UIViewController {
 
 }
 
-private extension FavoritesViewController {
+private extension MyBooksViewController {
+    
+    func setupFilterControl() {
+        view.addSubview(filterControl)
+        filterControl.addTarget(self, action: #selector(filterChanged(_:)), for: .valueChanged)
+                
+        NSLayoutConstraint.activate([
+            filterControl.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: UIConstants.Layout.Spacing.small),
+            filterControl.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: UIConstants.Layout.Inset.horizontal),
+            filterControl.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -UIConstants.Layout.Inset.horizontal)
+        ])
+    }
     
     func setupGridView() {
-        let collection = gridView.collectionView
-        collection.delegate = self
-        collection.dataSource = self
+        gridView.collectionView.delegate = self
+        gridView.collectionView.dataSource = self
         
         view.addSubview(gridView)
         
         NSLayoutConstraint.activate([
-            gridView.topAnchor.constraint(equalTo: view.topAnchor, constant: UIConstants.Layout.Inset.vertical),
+            gridView.topAnchor.constraint(equalTo: filterControl.bottomAnchor, constant: UIConstants.Layout.Spacing.small),
             gridView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             gridView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             gridView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
         ])
     }
     
+    @objc func filterChanged(_ sender: UISegmentedControl) {
+        presenter.didSelectFilter(at: sender.selectedSegmentIndex)
+    }
+    
 }
 
-extension FavoritesViewController: UICollectionViewDelegate, UICollectionViewDataSource {
+extension MyBooksViewController: UICollectionViewDelegate, UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         presenter.numberOfItems
@@ -88,12 +125,17 @@ extension FavoritesViewController: UICollectionViewDelegate, UICollectionViewDat
             self.presenter.didToggleFavorite(for: indexPath.item, isFavorite: isFavorite)
         }
         
+        cell.onNotesTap = { [weak self, weak cell] in
+            guard let self, let cell, let indexPath = collectionView.indexPath(for: cell)
+            else { return }
+            self.presenter.didTapNotes(for: indexPath.item)}
+        
         return cell
     }
     
 }
 
-extension FavoritesViewController: FavoritesViewProtocol {
+extension MyBooksViewController: MyBooksViewProtocol {
     
     func reloadData() {
         gridView.collectionView.reloadData()
@@ -118,6 +160,10 @@ extension FavoritesViewController: FavoritesViewProtocol {
         let alert = UIAlertController(title: "Ошибка", message: message, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "OK", style: .default))
         present(alert, animated: true)
+    }
+    
+    func setSelectedFilterIndex(_ index: Int) {
+        filterControl.selectedSegmentIndex = index
     }
 
 }

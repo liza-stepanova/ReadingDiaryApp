@@ -46,7 +46,7 @@ final class BookGridView: UIView {
         addSubview(bottomSpinner)
         NSLayoutConstraint.activate([
             bottomSpinner.centerXAnchor.constraint(equalTo: centerXAnchor),
-            bottomSpinner.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor, constant: -UIConstants.BookGrid.Spacing.bottomPaddingSpinner)
+            bottomSpinner.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor, constant: -UIConstants.Layout.Inset.vertical)
         ])
 
         collectionView.contentInset.bottom = UIConstants.BookGrid.Spacing.bottomPadding

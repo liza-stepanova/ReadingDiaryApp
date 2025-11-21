@@ -8,5 +8,6 @@ struct BookCellViewModel {
     var cover: UIImage?
     var status: ReadingStatus
     var isFavorite: Bool
+    var hasNotes: Bool
     
 }

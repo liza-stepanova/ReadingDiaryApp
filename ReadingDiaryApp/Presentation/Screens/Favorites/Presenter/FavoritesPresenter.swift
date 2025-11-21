@@ -80,7 +80,8 @@ extension FavoritesPresenter: FavoritesInteractorOutput {
                 author: $0.author,
                 cover: $0.coverImageData.flatMap { UIImage(data: $0) },
                 status: $0.readingStatus,
-                isFavorite: $0.isFavorite
+                isFavorite: $0.isFavorite,
+                hasNotes: false
             )
         }
         view?.showEmptyState(viewModels.isEmpty)

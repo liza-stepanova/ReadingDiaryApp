@@ -16,9 +16,17 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             localBooksRepository: appContainer.localBooksRepository
         )
         let favoritesFactory = FavoritesModuleFactory(repository: appContainer.localBooksRepository)
+        let myBooksFactory = MyBooksModuleFactory(repository: appContainer.localBooksRepository, notesRepository: appContainer.notesRepository)
         
         let window = UIWindow(windowScene: windowScene)
-        window.rootViewController = RootTabBarController(catalogFactory: catalogFactory, favoritesFactory: favoritesFactory)
+//        
+//        let notesVC = NotesViewController(bookTitle: "Мастер и Маргарита")
+//        let nav = UINavigationController(rootViewController: notesVC)
+//        window.rootViewController = nav
+//        
+        window.rootViewController = RootTabBarController(catalogFactory: catalogFactory,
+                                                         favoritesFactory: favoritesFactory,
+                                                         myBooksFactory: myBooksFactory)
         window.makeKeyAndVisible()
         
         self.window = window
