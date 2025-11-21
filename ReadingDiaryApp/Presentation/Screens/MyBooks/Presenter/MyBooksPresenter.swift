@@ -86,6 +86,12 @@ final class MyBooksPresenter: MyBooksPresenterProtocol {
         viewModels[index].isFavorite = isFavorite
         view?.reloadItems(at: [index])
     }
+    
+    func didTapNotes(for index: Int) {
+        guard index >= 0, index < books.count else { return }
+        let book = books[index]
+        // TODO: router
+    }
 }
 
 extension MyBooksPresenter: MyBooksInteractorOutput {
@@ -99,16 +105,28 @@ extension MyBooksPresenter: MyBooksInteractorOutput {
                 author: $0.author,
                 cover: $0.coverImageData.flatMap { UIImage(data: $0) },
                 status: $0.readingStatus,
-                isFavorite: $0.isFavorite
+                isFavorite: $0.isFavorite,
+                hasNotes: false
             )
         }
         view?.showEmptyState(viewModels.isEmpty)
         view?.reloadData()
+        
+        for book in books {
+            interactor.checkNotesExist(for: book.id)
+        }
     }
     
     func didFailMyBooks(_ error: Error) {
         view?.showError(message: error.localizedDescription)
     }
+    
+    func didUpdateNotesExist(bookId: String, hasNotes: Bool) {
+        guard let index = books.firstIndex(where: { $0.id == bookId }) else { return }
+        viewModels[index].hasNotes = hasNotes
+        view?.reloadItems(at: [index])
+    }
+
 }
 
 private extension MyBooksPresenter {

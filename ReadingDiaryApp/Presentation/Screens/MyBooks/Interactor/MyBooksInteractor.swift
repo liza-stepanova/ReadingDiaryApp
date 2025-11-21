@@ -4,13 +4,16 @@ final class MyBooksInteractor: MyBooksInteractorInput {
     
     struct Dependencies {
         let repository: LocalBooksRepositoryProtocol
+        let notesRepository: NotesRepositoryProtocol
     }
     
     weak var output: MyBooksInteractorOutput?
     private let repository: LocalBooksRepositoryProtocol
+    private let notesRepository: NotesRepositoryProtocol
     
     init(dependencies: Dependencies) {
         self.repository = dependencies.repository
+        self.notesRepository = dependencies.notesRepository
     }
     
     func fetchBooks(filter: MyBooksFilter) {
@@ -36,6 +39,17 @@ final class MyBooksInteractor: MyBooksInteractorInput {
         repository.toggleFavorite(bookId: bookId, isFavorite: isFavorite) { [weak self] result in
             if case let .failure(error) = result {
                 self?.output?.didFailMyBooks(error)
+            }
+        }
+    }
+    
+    func checkNotesExist(for bookId: String) {
+        notesRepository.hasNotes(for: bookId) { [weak self] result in
+            switch result {
+            case .success(let hasNotes):
+                self?.output?.didUpdateNotesExist(bookId: bookId, hasNotes: hasNotes)
+            case .failure:
+                break
             }
         }
     }

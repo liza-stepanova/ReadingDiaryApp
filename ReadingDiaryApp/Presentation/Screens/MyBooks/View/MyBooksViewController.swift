@@ -112,6 +112,11 @@ extension MyBooksViewController: UICollectionViewDelegate, UICollectionViewDataS
             self.presenter.didToggleFavorite(for: indexPath.item, isFavorite: isFavorite)
         }
         
+        cell.onNotesTap = { [weak self, weak cell] in
+            guard let self, let cell, let indexPath = collectionView.indexPath(for: cell)
+            else { return }
+            self.presenter.didTapNotes(for: indexPath.item)}
+        
         return cell
     }
     

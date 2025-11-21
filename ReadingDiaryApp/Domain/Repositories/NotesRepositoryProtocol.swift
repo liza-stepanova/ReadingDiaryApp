@@ -11,5 +11,6 @@ protocol NotesRepositoryProtocol {
     func deleteAllNotes(for bookId: String, completion: @escaping (Result<Void, Error>) -> Void)
     func updateText(noteId: String, newText: String, updatedAt: Date, completion: @escaping (Result<Void, Error>) -> Void)
     func updateOrder(for bookId: String, orderedNoteIds: [String], completion: @escaping (Result<Void, Error>) -> Void)
+    func hasNotes(for bookId: String, completion: @escaping (Result<Bool, Error>) -> Void)
     
 }

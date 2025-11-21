@@ -9,13 +9,15 @@ protocol MyBooksModuleFactoryProtocol {
 final class MyBooksModuleFactory: MyBooksModuleFactoryProtocol {
     
     private let repository: LocalBooksRepositoryProtocol
+    private let notesRepository: NotesRepositoryProtocol
     
-    init(repository: LocalBooksRepositoryProtocol) {
+    init(repository: LocalBooksRepositoryProtocol, notesRepository: NotesRepositoryProtocol) {
         self.repository = repository
+        self.notesRepository = notesRepository
     }
     
     func makeMyBooks() -> UIViewController {
-        MyBooksAssembly.build(repository: repository)
+        MyBooksAssembly.build(repository: repository, notesRepository: notesRepository)
     }
     
 }

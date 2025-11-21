@@ -136,7 +136,8 @@ extension CatalogPresenter: CatalogInteractorOutput {
                     author: book.author,
                     cover: nil,
                     status: local?.readingStatus ?? .none,
-                    isFavorite: local?.isFavorite ?? false
+                    isFavorite: local?.isFavorite ?? false,
+                    hasNotes: false
                 )
             }
             view?.setLoading(false)
@@ -155,7 +156,8 @@ extension CatalogPresenter: CatalogInteractorOutput {
                     author: book.author,
                     cover: nil,
                     status: local?.readingStatus ?? .none,
-                    isFavorite: local?.isFavorite ?? false
+                    isFavorite: local?.isFavorite ?? false,
+                    hasNotes: false
                 )
             }
             self.viewModels.append(contentsOf: newViewModels)

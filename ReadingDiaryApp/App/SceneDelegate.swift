@@ -16,7 +16,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             localBooksRepository: appContainer.localBooksRepository
         )
         let favoritesFactory = FavoritesModuleFactory(repository: appContainer.localBooksRepository)
-        let myBooksFactory = MyBooksModuleFactory(repository: appContainer.localBooksRepository)
+        let myBooksFactory = MyBooksModuleFactory(repository: appContainer.localBooksRepository, notesRepository: appContainer.notesRepository)
         
         let window = UIWindow(windowScene: windowScene)
         window.rootViewController = RootTabBarController(catalogFactory: catalogFactory,

@@ -6,6 +6,7 @@ final class BookCell: UICollectionViewCell {
     
     var onStatusChange: ((ReadingStatus) -> Void)?
     var onFavoriteToggle: ((Bool) -> Void)?
+    var onNotesTap: (() -> Void)?
     
     private var currentStatus: ReadingStatus = .none
     private var currentIsFavorite: Bool = false
@@ -64,6 +65,16 @@ final class BookCell: UICollectionViewCell {
         return button
     }()
     
+    private let notesButton: UIButton = {
+        let button = UIButton()
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.tintColor = .primaryAccent
+        button.setImage(UIImage(systemName: "note.text"), for: .normal)
+        button.isHidden = true
+        
+        return button
+    }()
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         
@@ -90,6 +101,7 @@ final class BookCell: UICollectionViewCell {
         bookAuthorLabel.text = model.author
         currentStatus = model.status
         currentIsFavorite = model.isFavorite
+        notesButton.isHidden = !model.hasNotes
         
         if let image = model.cover {
             bookImageView.image = image
@@ -119,6 +131,7 @@ private extension BookCell {
         contentView.addSubview(bookAuthorLabel)
         contentView.addSubview(statusButton)
         contentView.addSubview(favoriteButton)
+        contentView.addSubview(notesButton)
         
         NSLayoutConstraint.activate([
             bookImageView.topAnchor.constraint(equalTo: contentView.topAnchor),
@@ -147,11 +160,18 @@ private extension BookCell {
             favoriteButton.leadingAnchor.constraint(equalTo: statusButton.trailingAnchor, constant: UIConstants.BookCard.Spacing.horizontal),
             favoriteButton.heightAnchor.constraint(equalToConstant: UIConstants.BookCard.Size.iconHeight),
             favoriteButton.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
+            
+            notesButton.topAnchor.constraint(equalTo: bookAuthorLabel.bottomAnchor, constant: UIConstants.BookCard.Spacing.vertical),
+            notesButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            notesButton.heightAnchor.constraint(equalToConstant: UIConstants.BookCard.Size.iconHeight),
+            notesButton.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
+            
         ])
     }
     
     func setupActions() {
         favoriteButton.addTarget(self, action: #selector(favoriteButtonTapped), for: .touchUpInside)
+        notesButton.addTarget(self, action: #selector(notesButtonTapped), for: .touchUpInside)
     }
     
     func rebuildStatusMenu() {
@@ -184,6 +204,10 @@ private extension BookCell {
         currentIsFavorite.toggle()
         applyFavoriteAppearance()
         onFavoriteToggle?(currentIsFavorite)
+    }
+    
+    @objc private func notesButtonTapped() {
+        onNotesTap?()
     }
 
     func applyFavoriteAppearance() {
