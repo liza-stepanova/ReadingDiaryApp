@@ -26,7 +26,9 @@ final class CatalogPresenter: CatalogPresenterProtocol {
 
     func viewDidLoad() {
         view?.reloadData()
+        view?.setLoading(true)
         view?.showEmptyState(false)
+        interactor.loadPopularBooks()
     }
 
     func searchSubmitted(_ text: String) {
@@ -145,7 +147,6 @@ extension CatalogPresenter: CatalogInteractorOutput {
             view?.showEmptyState(viewModels.isEmpty)
             view?.reloadData()
         } else {
-            let startIndex = self.books.count
             self.books.append(contentsOf: books)
                         
             let newViewModels: [BookCellViewModel] = books.map { book in

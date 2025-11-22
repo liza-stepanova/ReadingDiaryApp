@@ -9,6 +9,12 @@ final class CatalogInteractor: CatalogInteractorInput {
         let localBooksRepository: LocalBooksRepositoryProtocol
     }
     
+    private enum Mode {
+        case none
+        case popular
+        case search(query: String)
+    }
+    
     weak var output: CatalogInteractorOutput?
     
     private let service: OpenLibraryServiceProtocol
@@ -18,12 +24,11 @@ final class CatalogInteractor: CatalogInteractorInput {
     private var currentTask: URLSessionDataTask?
     private var coverTasks: [String: URLSessionDataTask] = [:]
     
-    private var currentQuery: String = ""
+    private var mode: Mode = .none
     private var currentPage: Int = 0
     private let pageSize: Int = 20
     private var isLoadingPage = false
     private var hasMorePages = true
-
 
     init(dependencies: Dependencies) {
         self.service = dependencies.service
@@ -32,18 +37,30 @@ final class CatalogInteractor: CatalogInteractorInput {
     }
 
     func searchBooks(query: String) {
+        let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
         currentTask?.cancel()
-        currentQuery = query
         currentPage = 0
         hasMorePages = true
-        
-        guard !query.isEmpty else { return }
+                
+        guard !trimmed.isEmpty else {
+            mode = .none
+            return
+        }
+        mode = .search(query: trimmed)
+        loadPage(page: 1, isReset: true)
+    }
+    
+    func loadPopularBooks() {
+        currentTask?.cancel()
+        currentPage = 0
+        hasMorePages = true
+        mode = .popular
                
         loadPage(page: 1, isReset: true)
     }
     
     func loadNextPage() {
-        guard !currentQuery.isEmpty, hasMorePages, !isLoadingPage else { return }
+        guard hasMorePages, !isLoadingPage else { return }
         loadPage(page: currentPage + 1, isReset: false)
     }
 
@@ -53,7 +70,7 @@ final class CatalogInteractor: CatalogInteractorInput {
         isLoadingPage = false
         hasMorePages = true
         currentPage = 0
-        currentQuery = ""
+        mode = .none
     }
     
     func loadCover(for id: String, url: URL) {
@@ -113,9 +130,21 @@ final class CatalogInteractor: CatalogInteractorInput {
 private extension CatalogInteractor {
     
     func loadPage(page: Int, isReset: Bool) {
+        guard !isLoadingPage else { return }
         isLoadingPage = true
         
-        currentTask = service.searchBooks(query: currentQuery, page: page, limit: pageSize) { [weak self] result in
+        let requestQuery: String
+        switch mode {
+        case .search(let query):
+            requestQuery = query
+        case .popular:
+            requestQuery = "bestseller"
+        case .none:
+            isLoadingPage = false
+            return
+        }
+        
+        currentTask = service.searchBooks(query: requestQuery, page: page, limit: pageSize) { [weak self] result in
             guard let self else { return }
             self.isLoadingPage = false
                 

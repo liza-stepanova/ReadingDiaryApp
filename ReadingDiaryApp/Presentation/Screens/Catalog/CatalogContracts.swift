@@ -3,6 +3,7 @@ import UIKit
 protocol CatalogInteractorInput: AnyObject {
     
     func searchBooks(query: String)
+    func loadPopularBooks() 
     func loadNextPage()
     func cancelSearch()
     
